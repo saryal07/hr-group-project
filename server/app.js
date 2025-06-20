@@ -1,6 +1,8 @@
 const express = require('express');
 const app = express();
 
+app.use(express.json());
+
 require('dotenv').config();
 // config/db.js
 const connectDB = require('./config/db');
@@ -12,6 +14,12 @@ app.use('/api', testRoutes);
 
 const defaultRoute = require('./routers/testRoutes');
 app.use('/api', defaultRoute);
+
+const authRoutes = require('./routers/authRoutes');
+app.use('/auth', authRoutes);
+
+const employeeRoutes = require('./routers/employeeRoute');
+app.use('/api/employee', employeeRoutes);
 
 // handle incorrect links
 const errorHandler = require('./middlewares/errorHandler');
