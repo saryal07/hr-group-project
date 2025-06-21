@@ -20,6 +20,7 @@ app.use('/api/auth', authRoutes);
 const employeeRoutes = require('./routers/employeeRoute');
 app.use('/api/employee', employeeRoutes);
 
+
 const hrRoutes = require('./routers/hrRoutes');
 app.use('/api/hr', hrRoutes);
 

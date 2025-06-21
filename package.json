@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.832.0",
+    "dotenv": "^16.5.0",
+    "multer": "^2.0.1",
+    "multer-s3": "^3.0.1"
+  }
+}
