@@ -21,6 +21,9 @@ app.use('/auth', authRoutes);
 const employeeRoutes = require('./routers/employeeRoute');
 app.use('/api/employee', employeeRoutes);
 
+const hrRoutes = require('./routers/hrRoutes');
+app.use('/api/hr', hrRoutes);
+
 // handle incorrect links
 const errorHandler = require('./middlewares/errorHandler');
 const notFound = require('./middlewares/notFound');
