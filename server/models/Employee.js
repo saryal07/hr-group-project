@@ -6,7 +6,7 @@ const employeeSchema = new mongoose.Schema({
   lastName:  String,
   middleName: String,
   preferredName: String,
-  username: { type: String, required: true },
+  username: { type: String, required: true, unique: true },
   
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true, minlength: 8 }, // hashed
