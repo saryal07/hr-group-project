@@ -1,4 +1,3 @@
-// controllers/authController.js
 const asyncHandler = require('express-async-handler');
 const Employee = require('../models/Employee');
 const jwt = require('jsonwebtoken');
