@@ -3,20 +3,20 @@ const Employee = require('../models/Employee');
 const jwt = require('jsonwebtoken');
 
 const loginEmployee = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { username, password } = req.body;
 
   // Validate fields
-  if (!email || !password) {
+  if (!username || !password) {
     res.status(400);
-    throw new Error('Please provide both email and password');
+    throw new Error('Please provide both username and password');
   }
 
   // Find user
-  const user = await Employee.findOne({ email });
+  const user = await Employee.findOne({ username });
 
   if (!user) {
     res.status(401);
-    throw new Error('Invalid email');
+    throw new Error('Invalid username');
   }
 
   const isMatch = await user.matchPassword(password);
@@ -36,15 +36,16 @@ const loginEmployee = asyncHandler(async (req, res) => {
     token,
     user: {
       id: user._id,
-      email: user.email
+      username: user.username
     }
   });
 });
 
+// this mimics receiving email and password from hr
 const registerEmployee = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  const { email, username, password } = req.body;
 
-  if (!email || !password) {
+  if (!email || !username || !password) {
     res.status(400);
     throw new Error('Please fill in all fields');
   }
@@ -57,6 +58,7 @@ const registerEmployee = asyncHandler(async (req, res) => {
 
   const user = await Employee.create({
     email,
+    username,
     password,
   });
 
@@ -65,6 +67,7 @@ const registerEmployee = asyncHandler(async (req, res) => {
     user: {
       id: user._id,
       email: user.email,
+      username: user.username
     }
   });
 });
