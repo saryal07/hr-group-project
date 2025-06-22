@@ -4,7 +4,6 @@ const app = express();
 app.use(express.json());
 
 require('dotenv').config();
-// config/db.js
 const connectDB = require('./config/db');
 connectDB();
 
@@ -20,6 +19,9 @@ app.use('/auth', authRoutes);
 
 const employeeRoutes = require('./routers/employeeRoute');
 app.use('/api/employee', employeeRoutes);
+
+const hrRoutes = require('./routers/hrRoutes');
+app.use('/api/hr', hrRoutes);
 
 // handle incorrect links
 const errorHandler = require('./middlewares/errorHandler');
