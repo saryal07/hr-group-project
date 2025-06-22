@@ -23,6 +23,9 @@ app.use('/api/employee', employeeRoutes);
 const hrRoutes = require('./routers/hrRoutes');
 app.use('/api/hr', hrRoutes);
 
+const documentRoutes = require('./routers/documentRoutes');
+app.use('/api/documents', documentRoutes);
+
 // handle incorrect links
 const errorHandler = require('./middlewares/errorHandler');
 const notFound = require('./middlewares/notFound');

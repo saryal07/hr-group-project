@@ -1,0 +1,6 @@
+node_modules/
+.env
+temp-uploads/
+templates/*.pdf
+*.log
+.DS_Store 
