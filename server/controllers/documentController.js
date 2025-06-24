@@ -13,6 +13,12 @@ const getStepOrder = (documentType) => {
   return stepMap[documentType];
 };
 
+// Helper function to check if document type requires workflow
+const requiresWorkflow = (documentType) => {
+  const workflowTypes = ['opt_receipt', 'opt_ead', 'i_983', 'i_20'];
+  return workflowTypes.includes(documentType);
+};
+
 // Helper function to check if previous step is approved
 const checkPreviousStepApproved = async (employeeId, currentStep) => {
   if (currentStep === 1) return true; // First step always allowed
@@ -41,19 +47,10 @@ const uploadDocument = asyncHandler(async (req, res) => {
   }
 
   // Validate document type
-  const validTypes = ['opt_receipt', 'opt_ead', 'i_983', 'i_20'];
+  const validTypes = ['opt_receipt', 'opt_ead', 'i_983', 'i_20', 'profile_picture', 'drivers_license'];
   if (!validTypes.includes(documentType)) {
     res.status(400);
     throw new Error('Invalid document type');
-  }
-
-  const stepOrder = getStepOrder(documentType);
-  
-  // Check if previous step is approved
-  const previousStepApproved = await checkPreviousStepApproved(req.user.id, stepOrder);
-  if (!previousStepApproved) {
-    res.status(400);
-    throw new Error(`Previous step must be approved before uploading ${documentType}`);
   }
 
   // Check if document of this type already exists for this user
@@ -67,11 +64,26 @@ const uploadDocument = asyncHandler(async (req, res) => {
     throw new Error(`Document of type ${documentType} already exists`);
   }
 
+  // Handle workflow documents (OPT documents)
+  if (requiresWorkflow(documentType)) {
+    const stepOrder = getStepOrder(documentType);
+    
+    // Check if previous step is approved
+    const previousStepApproved = await checkPreviousStepApproved(req.user.id, stepOrder);
+    if (!previousStepApproved) {
+      res.status(400);
+      throw new Error(`Previous step must be approved before uploading ${documentType}`);
+    }
+  }
+
   try {
     // Upload file to S3
     const s3Result = await S3Service.uploadFile(req.file, req.user.id, documentType);
 
-    const document = await Document.create({
+    // Determine initial status based on document type
+    const initialStatus = requiresWorkflow(documentType) ? 'pending' : 'approved';
+
+    const documentData = {
       employee: req.user.id,
       fileName: req.file.filename,
       originalName: req.file.originalname,
@@ -82,8 +94,15 @@ const uploadDocument = asyncHandler(async (req, res) => {
       s3Url: s3Result.url,
       documentType,
       description: description || '',
-      stepOrder
-    });
+      status: initialStatus
+    };
+
+    // Add stepOrder only for workflow documents
+    if (requiresWorkflow(documentType)) {
+      documentData.stepOrder = getStepOrder(documentType);
+    }
+
+    const document = await Document.create(documentData);
 
     res.status(201).json({
       success: true,
@@ -98,7 +117,7 @@ const uploadDocument = asyncHandler(async (req, res) => {
 // GET /documents - Get all documents for the authenticated employee
 const getDocuments = asyncHandler(async (req, res) => {
   const documents = await Document.find({ employee: req.user.id })
-    .sort({ stepOrder: 1 });
+    .sort({ stepOrder: 1, uploadDate: -1 });
 
   // Generate signed URLs for each document
   const documentsWithUrls = await Promise.all(
@@ -253,8 +272,8 @@ const deleteDocument = asyncHandler(async (req, res) => {
     throw new Error('Not authorized to delete this document');
   }
 
-  // Check if document is pending or approved (can't delete if rejected)
-  if (document.status === 'rejected') {
+  // For workflow documents, check if document is pending or approved (can't delete if rejected)
+  if (requiresWorkflow(document.documentType) && document.status === 'rejected') {
     res.status(400);
     throw new Error('Cannot delete a rejected document');
   }
