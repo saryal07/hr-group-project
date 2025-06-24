@@ -1,0 +1,1044 @@
+{
+	"info": {
+		"_postman_id": "personal-docs-test-collection",
+		"name": "Personal Documents Tests",
+		"description": "Test collection for the new personal document types: profile_picture and drivers_license",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication",
+			"item": [
+				{
+					"name": "Login Employee",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('authToken', response.token);",
+									"    pm.environment.set('employeeId', response.user.id);",
+									"    console.log('Login successful, token saved');",
+									"} else {",
+									"    console.log('Login failed');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"testemployee\",\n    \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/auth/login",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"auth",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Profile Picture Tests",
+			"item": [
+				{
+					"name": "Upload Profile Picture - JPG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Response has success field', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.success).to.be.true;",
+									"});",
+									"",
+									"pm.test('Document type is profile_picture', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.documentType).to.eql('profile_picture');",
+									"});",
+									"",
+									"pm.test('Status is approved (auto-approved)', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.status).to.eql('approved');",
+									"});",
+									"",
+									"pm.test('No stepOrder field for personal documents', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.stepOrder).to.be.undefined;",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('profilePictureId', response.data._id);",
+									"    console.log('Profile picture uploaded, ID saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/test-image.jpg"
+								},
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Professional headshot for employee profile",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Profile Picture - PNG",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('File type is image/png', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.fileType).to.eql('image/png');",
+									"});",
+									"",
+									"pm.test('Status is approved', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.status).to.eql('approved');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/test-image.png"
+								},
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Profile picture in PNG format",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Profile Picture - Invalid File Type (PDF)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Error message about invalid file type', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('Invalid file type');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/test-document.pdf"
+								},
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Driver's License Tests",
+			"item": [
+				{
+					"name": "Upload Driver's License - PDF",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Document type is drivers_license', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.documentType).to.eql('drivers_license');",
+									"});",
+									"",
+									"pm.test('Status is approved (auto-approved)', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.status).to.eql('approved');",
+									"});",
+									"",
+									"pm.test('No stepOrder field for personal documents', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.stepOrder).to.be.undefined;",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('driversLicenseId', response.data._id);",
+									"    console.log('Driver\\'s license uploaded, ID saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/drivers-license.pdf"
+								},
+								{
+									"key": "documentType",
+									"value": "drivers_license",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "State driver's license document",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Driver's License - Image",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('File type is image', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.fileType).to.include('image/');",
+									"});",
+									"",
+									"pm.test('Status is approved', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.status).to.eql('approved');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/drivers-license-image.jpg"
+								},
+								{
+									"key": "documentType",
+									"value": "drivers_license",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "Driver's license as image",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Document Retrieval Tests",
+			"item": [
+				{
+					"name": "Get All Documents (Include Personal)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Response has documents array', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data).to.be.an('array');",
+									"});",
+									"",
+									"pm.test('Documents have download URLs', function () {",
+									"    const response = pm.response.json();",
+									"    response.data.forEach(doc => {",
+									"        pm.expect(doc.downloadUrl).to.be.a('string');",
+									"    });",
+									"});",
+									"",
+									"pm.test('Personal documents are approved', function () {",
+									"    const response = pm.response.json();",
+									"    const personalDocs = response.data.filter(doc => ",
+									"        ['profile_picture', 'drivers_license'].includes(doc.documentType)",
+									"    );",
+									"    personalDocs.forEach(doc => {",
+									"        pm.expect(doc.status).to.eql('approved');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Profile Picture",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Document type is profile_picture', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.documentType).to.eql('profile_picture');",
+									"});",
+									"",
+									"pm.test('Has download URL', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.downloadUrl).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{profilePictureId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents",
+								"{{profilePictureId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Specific Driver's License",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Document type is drivers_license', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.documentType).to.eql('drivers_license');",
+									"});",
+									"",
+									"pm.test('Has download URL', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.downloadUrl).to.be.a('string');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{driversLicenseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents",
+								"{{driversLicenseId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Document Deletion Tests",
+			"item": [
+				{
+					"name": "Delete Profile Picture",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Success message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('deleted successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{profilePictureId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents",
+								"{{profilePictureId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Driver's License",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Success message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('deleted successfully');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents/{{driversLicenseId}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents",
+								"{{driversLicenseId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Error Handling Tests",
+			"item": [
+				{
+					"name": "Upload Without Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 401', function () {",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"pm.test('Unauthorized message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('Not authorized');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/test-image.jpg"
+								},
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Without File",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('No file uploaded message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('No file uploaded');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Without Document Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Document type required message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('Document type is required');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/test-image.jpg"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Upload Duplicate Document Type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 400', function () {",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"",
+									"pm.test('Document already exists message', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.message).to.include('already exists');",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/another-image.jpg"
+								},
+								{
+									"key": "documentType",
+									"value": "profile_picture",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Workflow Comparison Tests",
+			"item": [
+				{
+					"name": "Upload OPT Receipt (Workflow Document)",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 201', function () {",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test('Document type is opt_receipt', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.documentType).to.eql('opt_receipt');",
+									"});",
+									"",
+									"pm.test('Status is pending (requires approval)', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.status).to.eql('pending');",
+									"});",
+									"",
+									"pm.test('Has stepOrder field', function () {",
+									"    const response = pm.response.json();",
+									"    pm.expect(response.data.stepOrder).to.eql(1);",
+									"});",
+									"",
+									"if (pm.response.code === 201) {",
+									"    const response = pm.response.json();",
+									"    pm.environment.set('optReceiptId', response.data._id);",
+									"    console.log('OPT receipt uploaded, ID saved');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "document",
+									"type": "file",
+									"src": "/path/to/opt-receipt.pdf"
+								},
+								{
+									"key": "documentType",
+									"value": "opt_receipt",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "OPT receipt for STEM extension",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Compare Personal vs Workflow Documents",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test('Status code is 200', function () {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test('Contains both personal and workflow documents', function () {",
+									"    const response = pm.response.json();",
+									"    const personalDocs = response.data.filter(doc => ",
+									"        ['profile_picture', 'drivers_license'].includes(doc.documentType)",
+									"    );",
+									"    const workflowDocs = response.data.filter(doc => ",
+									"        ['opt_receipt', 'opt_ead', 'i_983', 'i_20'].includes(doc.documentType)",
+									"    );",
+									"    pm.expect(personalDocs.length).to.be.greaterThan(0);",
+									"    pm.expect(workflowDocs.length).to.be.greaterThan(0);",
+									"});",
+									"",
+									"pm.test('Personal documents are approved, workflow documents are pending', function () {",
+									"    const response = pm.response.json();",
+									"    const personalDocs = response.data.filter(doc => ",
+									"        ['profile_picture', 'drivers_license'].includes(doc.documentType)",
+									"    );",
+									"    const workflowDocs = response.data.filter(doc => ",
+									"        ['opt_receipt', 'opt_ead', 'i_983', 'i_20'].includes(doc.documentType)",
+									"    );",
+									"    personalDocs.forEach(doc => {",
+									"        pm.expect(doc.status).to.eql('approved');",
+									"    });",
+									"    workflowDocs.forEach(doc => {",
+									"        pm.expect(doc.status).to.eql('pending');",
+									"    });",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{authToken}}"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/api/documents",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"api",
+								"documents"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Set base URL if not already set",
+					"if (!pm.environment.get('baseUrl')) {",
+					"    pm.environment.set('baseUrl', 'http://localhost:3000');",
+					"}"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:3000",
+			"type": "string"
+		}
+	]
+} 

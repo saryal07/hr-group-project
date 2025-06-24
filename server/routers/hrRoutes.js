@@ -1,6 +1,19 @@
 const express = require('express');
 const router = express.Router();
-const { getHousing, createHousing, updateHousing, getOnboardingStatus, updateOnboardingStatus } = require('../controllers/hrController');
+const { 
+  getHousing, 
+  createHousing, 
+  updateHousing, 
+  getOnboardingStatus, 
+  updateOnboardingStatus,
+  getAllDocuments,
+  getPendingDocuments,
+  getEmployeeDocuments,
+  approveDocument,
+  rejectDocument,
+  getOptEmployees,
+  getWorkflowSummary
+} = require('../controllers/hrController');
 const { protect } = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
 
@@ -18,5 +31,28 @@ router.route('/housing')
 router.route('/onboarding/:employeeId')
   .get(getOnboardingStatus)
   .put(updateOnboardingStatus);
+
+// Document management routes
+router.route('/documents')
+  .get(getAllDocuments);
+
+router.route('/documents/pending')
+  .get(getPendingDocuments);
+
+router.route('/documents/employee/:employeeId')
+  .get(getEmployeeDocuments);
+
+router.route('/documents/:id/approve')
+  .put(approveDocument);
+
+router.route('/documents/:id/reject')
+  .put(rejectDocument);
+
+// OPT employee management
+router.route('/employees/opt')
+  .get(getOptEmployees);
+
+router.route('/workflow-summary')
+  .get(getWorkflowSummary);
 
 module.exports = router;
