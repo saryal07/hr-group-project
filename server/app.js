@@ -1,9 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 
 app.use(express.json());
 
-require('dotenv').config();
+// config/db.js
 const connectDB = require('./config/db');
 connectDB();
 
