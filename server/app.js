@@ -15,7 +15,7 @@ const defaultRoute = require('./routers/testRoutes');
 app.use('/api', defaultRoute);
 
 const authRoutes = require('./routers/authRoutes');
-app.use('/auth', authRoutes);
+app.use('/api/auth', authRoutes);
 
 const employeeRoutes = require('./routers/employeeRoute');
 app.use('/api/employee', employeeRoutes);
