@@ -1,4 +1,3 @@
-// src/pages/Login.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TextField, Button, Typography, Box, Alert } from '@mui/material';
@@ -15,7 +14,7 @@ const Login = () => {
     e.preventDefault();
     try {
       await login(username, password);
-      navigate('/personal-info');
+      navigate('/onboarding-page');
     } catch (err) {
       setError(err.response?.data?.message || 'Login failed');
     }

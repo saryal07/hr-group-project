@@ -4,7 +4,6 @@ const Document = require('../models/Document');
 const TokenModel = require('../models/TokenModel');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
-const { sendRegistrationEmail } = require('../services/emailService');
 
 // Create registration token
 const createRegistrationToken = asyncHandler(async (req, res) => {
@@ -31,10 +30,6 @@ const createRegistrationToken = asyncHandler(async (req, res) => {
     used: false,
     expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours
   });
-
-  // Send email
-  const registrationLink = `https://localhost:3000/register/${token}`;
-  //await sendRegistrationEmail(email, registrationLink);  // Send registration link to email
 
   res.status(200).json({ token, message: 'Invitation sent' });
 });

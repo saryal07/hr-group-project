@@ -9,6 +9,7 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
 
@@ -21,6 +22,13 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
     try {
       await axios.post(`/api/auth/register/${token}`, {
         username,
@@ -33,7 +41,7 @@ const Register = () => {
     }
   };
 
-  if (error) return <Alert severity="error">{error}</Alert>;
+  if (error && !success) return <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>;
 
   return (
     <Box component="form" onSubmit={handleSubmit} sx={{ mt: 4 }}>
@@ -41,6 +49,7 @@ const Register = () => {
       <TextField label="Email" value={email} fullWidth disabled sx={{ mb: 2 }} />
       <TextField label="Username" value={username} onChange={(e) => setUsername(e.target.value)} fullWidth required sx={{ mb: 2 }} />
       <TextField label="Password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} fullWidth required sx={{ mb: 2 }} />
+      <TextField label="Confirm Password" type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} fullWidth required sx={{ mb: 2 }} />
       <Button type="submit" variant="contained" fullWidth>Register</Button>
       {success && <Alert severity="success" sx={{ mt: 2 }}>Registered successfully! Redirecting to login…</Alert>}
     </Box>

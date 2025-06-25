@@ -1,12 +1,12 @@
 import React from 'react';
 import { Typography, Box } from '@mui/material';
 
-const PersonalInfo = () => {
+const OnboardingPage = () => {
   return (
     <Box sx={{ mt: 4 }}>
-      <Typography variant="h4">Welcome to Personal Info Page</Typography>
+      <Typography variant="h4">Welcome to Onboarding Page</Typography>
     </Box>
   );
 };
 
-export default PersonalInfo;
+export default OnboardingPage;
