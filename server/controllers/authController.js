@@ -1,6 +1,31 @@
 const asyncHandler = require('express-async-handler');
 const Employee = require('../models/Employee');
 const jwt = require('jsonwebtoken');
+const TokenModel = require('../models/TokenModel');
+
+const checkRegistrationToken = asyncHandler(async (req, res) => {
+  const { token } = req.params;
+
+  // Look up token in DB
+  const tokenRecord = await TokenModel.findOne({ token });
+
+  if (!tokenRecord) {
+    res.status(400);
+    throw new Error('Token not found');
+  }
+
+  if (tokenRecord.used) {
+    res.status(400);
+    throw new Error('Token already used');
+  }
+
+  if (tokenRecord.expiresAt < new Date()) {
+    res.status(400);
+    throw new Error('Token expired');
+  }
+
+  res.status(200).json({ email: tokenRecord.email });
+});
 
 const loginEmployee = asyncHandler(async (req, res) => {
   const { username, password } = req.body;
@@ -41,26 +66,49 @@ const loginEmployee = asyncHandler(async (req, res) => {
   });
 });
 
-// this mimics receiving email and password from hr
 const registerEmployee = asyncHandler(async (req, res) => {
-  const { email, username, password } = req.body;
+  const { token } = req.params;
+  const { username, password } = req.body;
 
-  if (!email || !username || !password) {
+  if (!username || !password) {
     res.status(400);
     throw new Error('Please fill in all fields');
   }
 
-  const emailExists = await Employee.findOne({ email });
-  if (emailExists) {
+  const tokenRecord = await TokenModel.findOne({ token });
+
+   if (!tokenRecord) {
+    res.status(400);
+    throw new Error('Invalid token');
+  }
+
+  if (tokenRecord.used) {
+    res.status(400);
+    throw new Error('Token has already been used');
+  }
+
+  if (tokenRecord.expiresAt < new Date()) {
+    res.status(400);
+    throw new Error('Token has expired');
+  }
+
+  const email = tokenRecord.email;
+  const existing = await Employee.findOne({ email });
+  if (existing) {
     res.status(409);
     throw new Error('Email already registered');
   }
 
+  // Create the employee account
   const user = await Employee.create({
     email,
     username,
     password,
   });
+
+  // Mark token as used
+  tokenRecord.used = true;
+  await tokenRecord.save();
 
   res.status(201).json({
     message: 'User registered successfully',
@@ -72,4 +120,4 @@ const registerEmployee = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { registerEmployee, loginEmployee };
+module.exports = { checkRegistrationToken, registerEmployee, loginEmployee };

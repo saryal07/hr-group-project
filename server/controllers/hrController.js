@@ -1,7 +1,38 @@
 const Housing = require('../models/Housing');
 const Employee = require('../models/Employee');
 const Document = require('../models/Document');
+const TokenModel = require('../models/TokenModel');
+const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
+
+// Create registration token
+const createRegistrationToken = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('Email is required');
+  }
+
+  const emailExists = await Employee.findOne({ email });
+  if (emailExists) {
+    res.status(409);
+    throw new Error('Email already registered');
+  }
+
+  // Generate token using JWT
+  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '3h' });
+
+  // Save token in DB (so it can be validated later)
+  await TokenModel.create({
+    email,
+    token,
+    used: false,
+    expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours
+  });
+
+  res.status(200).json({ token, message: 'Invitation sent' });
+});
 
 // GET housing
 const getHousing = asyncHandler(async (req, res) => {
@@ -224,6 +255,7 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createRegistrationToken,
   getHousing,
   createHousing,
   updateHousing,
