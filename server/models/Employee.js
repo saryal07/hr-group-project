@@ -34,8 +34,7 @@ const employeeSchema = new mongoose.Schema({
   visa: {
     type: {
       type: String,
-      enum: ['F1', 'H1-B', 'L2', 'H4', 'Other'], // adjust as needed
-      required: true
+      enum: ['F1', 'H1-B', 'L2', 'H4', 'Other'] // adjust as needed
     },
     title: { type: String },
     startDate: { type: Date },
