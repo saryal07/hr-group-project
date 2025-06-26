@@ -16,7 +16,7 @@ import VisaStatus from './pages/VisaStatus';
 import Housing from './pages/Housing';
 import Navbar from './components/Navbar';
 
-// Create a minimal black and white theme
+// black and white theme - just a placeholder design
 const theme = createTheme({
   palette: {
     primary: {

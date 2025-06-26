@@ -60,12 +60,10 @@ const Dashboard = () => {
     fetchStats();
   }, []);
 
-  // Handle successful report creation
+  // Handle report creation success
   const handleReportCreated = (newReport) => {
-    // Refresh stats to include the new report
+    // Refresh the stats to reflect the new report
     fetchStats();
-    // Optionally navigate to the new report
-    navigate(`/employee/facility-reports/${newReport._id}`);
   };
 
   const StatCard = ({ title, value, color }) => (

@@ -83,17 +83,17 @@ const FacilityReports = () => {
     fetchReports();
   }, [fetchReports]);
 
-  // Handle successful report creation
+  // Handle report creation success
   const handleReportCreated = () => {
-    fetchReports(); // Refresh the reports list
+    fetchReports(); // Refresh reports list
   };
 
   const getStatusColor = (status) => {
-    return 'default'; // Keep everything minimal
+    return 'default';
   };
 
   const getPriorityColor = (priority) => {
-    return 'default'; // Keep everything minimal
+    return 'default';
   };
 
   return (
@@ -303,7 +303,7 @@ const FacilityReports = () => {
         </Box>
       )}
 
-      {/* Create Report Dialog - Now using shared component */}
+      {/* Create Report Dialog - using shared component */}
       <CreateReportDialog
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}

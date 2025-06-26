@@ -23,7 +23,7 @@ const CreateReportDialog = ({ open, onClose, onSuccess }) => {
   const [creating, setCreating] = useState(false);
   const [error, setError] = useState('');
 
-  // Reset form when dialog closes
+  // Clear form when dialog closed
   const handleClose = () => {
     setNewReport({
       title: '',
@@ -58,7 +58,7 @@ const CreateReportDialog = ({ open, onClose, onSuccess }) => {
         const data = await response.json();
         handleClose();
         setError('');
-        // Call the success callback with the new report data
+        // Call success callback with new report data
         if (onSuccess) {
           onSuccess(data.data);
         }

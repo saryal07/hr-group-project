@@ -32,7 +32,7 @@ const ReportDetail = () => {
   const [newComment, setNewComment] = useState('');
   const [addingComment, setAddingComment] = useState(false);
 
-  // Edit comment states
+  // Edit comments
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editCommentText, setEditCommentText] = useState('');
   const [updatingComment, setUpdatingComment] = useState(false);
@@ -84,7 +84,7 @@ const ReportDetail = () => {
 
       if (response.ok) {
         setNewComment('');
-        fetchReport(); // Refresh to get the new comment
+        fetchReport(); // Refresh to get most recent comment
         setError('');
       } else {
         const errorData = await response.json();
@@ -131,7 +131,7 @@ const ReportDetail = () => {
       if (response.ok) {
         setEditingCommentId(null);
         setEditCommentText('');
-        fetchReport(); // Refresh to get the updated comment
+        fetchReport(); // Refresh
         setError('');
       } else {
         const errorData = await response.json();

@@ -1,5 +1,4 @@
 // This is a placeholder to test facility reports
-
 import React, { useState, useEffect } from 'react';
 import {
   Container,
@@ -22,8 +21,8 @@ const Housing = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // For now using placeholder data
-    // In full implementation, this would fetch from your housing API
+    // Just for now using placeholder data
+    // In full implementation, this would fetch from the actual housing API
     setHousingInfo({
       address: '123 Main St, Apt 4B, New York, NY 10001',
       roommates: [

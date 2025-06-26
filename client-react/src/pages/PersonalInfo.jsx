@@ -1,6 +1,4 @@
 // This is a placeholder to test Navbar
-
-import React from 'react';
 import { Container, Typography, Card, CardContent } from '@mui/material';
 
 const PersonalInfo = () => {
