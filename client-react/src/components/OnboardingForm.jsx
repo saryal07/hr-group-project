@@ -10,7 +10,7 @@ import axios from 'axios';
 const genders = ['male', 'female', 'prefer not to say'];
 const visaTypes = ['H1-B', 'L2', 'F1', 'H4', 'Other'];
 
-const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
+const OnboardingForm = ({ initialData = {}, status, onSubmitSuccess }) => {
   const [form, setForm] = useState({
     firstName: '', lastName: '', middleName: '', preferredName: '',
     email: '', ssn: '', dob: '', gender: '',
@@ -25,7 +25,7 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
   });
 
   const [files, setFiles] = useState({
-    profilePic: null, driverLicense: null, optReceipt: null, workAuth: null
+    profile_picture: null, drivers_license: null, opt_receipt: null
   });
 
   const [success, setSuccess] = useState(false);
@@ -34,6 +34,21 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
   useEffect(() => {
     if (initialData) setForm((prev) => ({ ...prev, ...initialData }));
   }, [initialData]);
+
+  const uploadSingleDocument = async (file, documentType) => {
+    const formData = new FormData();
+    formData.append('document', file);
+    formData.append('documentType', documentType);
+
+    const res = await axios.post('/api/documents', formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+
+    return res.data;
+  };
+
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -108,11 +123,25 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
     try {
       const response = await axios.put('/api/employee/form', formData);
       console.log('Updated employee:', response.data);
+
+      // Upload each document (if present)
+      for (const [docType, file] of Object.entries(files)) {
+        if (file) {
+          try {
+            const docRes = await uploadSingleDocument(file, docType);
+            console.log(`Uploaded ${docType}:`, docRes);
+          } catch (uploadErr) {
+            console.error(`Failed to upload ${docType}:`, uploadErr.message);
+          }
+        }
+      }
       setSuccess(true);
       onSubmitSuccess?.(); // Trigger refresh of document summary
+      setTimeout(() => window.location.reload(), 1000);
     } catch (err) {
       console.error(err);
       setError('Submission failed.');
+      setSuccess(false);
     }
   };
 
@@ -174,7 +203,7 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
           {form.visa.type === 'F1' && (
             <Box sx={{ mb: 2 }}>
               <InputLabel>Upload OPT Receipt</InputLabel>
-              <input type="file" name="optReceipt" onChange={handleFileChange} accept="application/pdf" />
+              <input type="file" name="opt_receipt" onChange={handleFileChange} accept="application/pdf" />
             </Box>
           )}
         </>
@@ -188,7 +217,7 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
           <TextField label="Expiration Date" name="driversLicense.expirationDate" type="date" value={form.driversLicense.expirationDate} onChange={handleChange} fullWidth InputLabelProps={{ shrink: true }} sx={{ mb: 2 }} />
           <Box sx={{ mb: 2 }}>
             <InputLabel>Upload Driver’s License</InputLabel>
-            <input type="file" name="driverLicense" onChange={handleFileChange} accept="application/pdf,image/*" />
+            <input type="file" name="drivers_license" onChange={handleFileChange} accept="application/pdf,image/*" />
           </Box>
         </>
       )}
@@ -221,7 +250,7 @@ const OnboardingForm = ({ initialData = {}, status, onSubmitSucess }) => {
 
       <Box sx={{ mt: 3 }}>
         <InputLabel>Upload Profile Picture</InputLabel>
-        <input type="file" name="profilePic" onChange={handleFileChange} accept="image/*" />
+        <input type="file" name="profile_picture" onChange={handleFileChange} accept="image/*" />
       </Box>
 
       <Button type="submit" variant="contained" sx={{ mt: 3 }}>Submit Application</Button>
