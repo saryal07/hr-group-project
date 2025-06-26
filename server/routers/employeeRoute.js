@@ -1,7 +1,7 @@
 const express = require('express');
 const { 
   getMe, 
-  updateMe, 
+  updateMe, submitForm, 
   submitForm, deleteMe 
 } = require('../controllers/employeeController');
 const { 
@@ -19,6 +19,8 @@ router
   .get(protect, getMe)
   .put(protect, updateMe)
   .delete(protect, deleteMe);
+
+router.put('/form', formidable({ multiples: true }), protect, submitForm)
 
 // Housing routes
 router.route('/housing/me')
