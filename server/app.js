@@ -1,9 +1,10 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 
 app.use(express.json());
 
-require('dotenv').config();
+// config/db.js
 const connectDB = require('./config/db');
 connectDB();
 
@@ -19,6 +20,7 @@ app.use('/api/auth', authRoutes);
 
 const employeeRoutes = require('./routers/employeeRoute');
 app.use('/api/employee', employeeRoutes);
+
 
 const hrRoutes = require('./routers/hrRoutes');
 app.use('/api/hr', hrRoutes);
