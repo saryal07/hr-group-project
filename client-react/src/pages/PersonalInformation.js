@@ -52,6 +52,12 @@ const PersonalInformation = () => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      console.log('Token loaded from localStorage');
+    }
+    
     fetchEmployeeData();
     fetchDocuments();
   }, []);
@@ -61,6 +67,7 @@ const PersonalInformation = () => {
       const response = await axios.get('/api/employee/me');
       setEmployee(response.data);
     } catch (error) {
+      console.error('Failed to fetch employee data:', error);
       setError('Failed to fetch employee data');
     } finally {
       setLoading(false);
@@ -260,7 +267,7 @@ const PersonalInformation = () => {
 
   const handleDocumentDownload = async (documentId) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/documents/${documentId}`);
+      const response = await axios.get(`/api/documents/${documentId}`);
       const downloadUrl = response.data.data.downloadUrl;
       if (downloadUrl) {
         window.open(downloadUrl, '_blank');
@@ -272,7 +279,7 @@ const PersonalInformation = () => {
 
   const handleDocumentPreview = async (documentId) => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/documents/${documentId}`);
+      const response = await axios.get(`/api/documents/${documentId}`);
       const downloadUrl = response.data.data.downloadUrl;
       if (downloadUrl) {
         window.open(downloadUrl, '_blank');
@@ -284,7 +291,53 @@ const PersonalInformation = () => {
 
   const renderSection = (title, icon, fields, sectionKey) => {
     const isEditing = editingSection === sectionKey;
-    const data = isEditing ? tempData : (employee?.[sectionKey] || {});
+    let data = {};
+    
+    if (isEditing) {
+      data = tempData;
+    } else {
+      // Map the actual employee data structure to the expected field names
+      if (sectionKey === 'name') {
+        data = {
+          firstName: employee?.firstName || '',
+          lastName: employee?.lastName || '',
+          middleName: employee?.middleName || '',
+          preferredName: employee?.preferredName || '',
+          email: employee?.email || '',
+          ssn: employee?.ssn || '',
+          dob: employee?.dob ? employee.dob.substring(0, 10) : '',
+          gender: employee?.gender || ''
+        };
+      } else if (sectionKey === 'address') {
+        data = {
+          building: employee?.address?.building || '',
+          street: employee?.address?.street || '',
+          city: employee?.address?.city || '',
+          state: employee?.address?.state || '',
+          zip: employee?.address?.zip || ''
+        };
+      } else if (sectionKey === 'contact') {
+        data = {
+          cellPhone: employee?.cellPhone || '',
+          workPhone: employee?.workPhone || ''
+        };
+      } else if (sectionKey === 'employment') {
+        data = {
+          visaTitle: employee?.visa?.title || '',
+          startDate: employee?.visa?.startDate ? employee.visa.startDate.substring(0, 10) : '',
+          endDate: employee?.visa?.endDate ? employee.visa.endDate.substring(0, 10) : ''
+        };
+      } else if (sectionKey === 'emergencyContact') {
+        data = {
+          firstName: employee?.emergencyContacts?.[0]?.firstName || '',
+          lastName: employee?.emergencyContacts?.[0]?.lastName || '',
+          middleName: employee?.emergencyContacts?.[0]?.middleName || '',
+          phone: employee?.emergencyContacts?.[0]?.phone || '',
+          email: employee?.emergencyContacts?.[0]?.email || '',
+          relationship: employee?.emergencyContacts?.[0]?.relationship || ''
+        };
+      }
+    }
 
     return (
       <Card sx={{ mb: 3 }}>
