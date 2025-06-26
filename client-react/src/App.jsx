@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Login from './pages/Login';
 import OnboardingPage from './pages/OnboardingPage';
 import AdminInvite from './pages/AdminInvite';
+import Home from './pages/Home';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const PrivateRoute = ({ children }) => {
@@ -36,6 +37,14 @@ const App = () => {
               element={
                 <PrivateRoute>
                   <AdminInvite />
+                </PrivateRoute>
+              }
+            />
+            <Route 
+              path="/home" 
+              element={
+                <PrivateRoute>
+                  <Home />
                 </PrivateRoute>
               }
             />

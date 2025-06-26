@@ -30,9 +30,6 @@ const OnboardingPage = () => {
         setApplication(data);
         setStatus(data.onboardingStatus);
 
-        if (data.onboardingStatus === 'Approved') {
-          navigate('/home');
-        }
       } catch (err) {
         console.error('Error fetching onboarding data:', err);
       } finally {
@@ -42,6 +39,13 @@ const OnboardingPage = () => {
 
     fetchApplication();
   }, [navigate]);
+
+  useEffect(() => {
+    if (status === 'Approved') {
+      navigate('/home');
+    }
+  }, [status, navigate]);
+
 
   const fetchDocuments = async () => {
     try {
