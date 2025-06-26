@@ -62,6 +62,8 @@ const employeeSchema = new mongoose.Schema({
     }
   ],
 
+  hrFeedback: String,
+
   role: { type: String, enum: ['employee', 'admin'], default: 'employee' },
 
   onboardingStatus: {

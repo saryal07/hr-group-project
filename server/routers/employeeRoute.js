@@ -2,7 +2,7 @@ const express = require('express');
 const { 
   getMe, 
   updateMe, 
-  deleteMe 
+  submitForm, deleteMe 
 } = require('../controllers/employeeController');
 const { 
   getMyHousing, 
@@ -11,6 +11,7 @@ const {
   addCommentToReport 
 } = require('../controllers/employeeHousingController');
 const { protect } = require('../middlewares/authMiddleware');
+const formidable = require('express-formidable');
 const router = express.Router();
 
 router
@@ -32,5 +33,7 @@ router.route('/facility-reports')
 
 router.route('/facility-reports/:id/comments')
   .post(protect, addCommentToReport);
+
+router.put('/form', formidable({ multiples: true }), protect, submitForm)
 
 module.exports = router;
