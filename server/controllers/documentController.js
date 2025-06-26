@@ -46,29 +46,26 @@ const uploadDocument = asyncHandler(async (req, res) => {
     throw new Error('Document type is required');
   }
 
-  // Validate document type
   const validTypes = ['opt_receipt', 'opt_ead', 'i_983', 'i_20', 'profile_picture', 'drivers_license'];
   if (!validTypes.includes(documentType)) {
     res.status(400);
     throw new Error('Invalid document type');
   }
 
-  // Check if document of this type already exists for this user
   const existingDocument = await Document.findOne({
     employee: req.user.id,
-    documentType: documentType
+    documentType
   });
 
+  // Delete existing document if present
   if (existingDocument) {
-    res.status(400);
-    throw new Error(`Document of type ${documentType} already exists`);
+    console.log(`🔁 Replacing existing document: ${existingDocument._id}`);
+    await S3Service.deleteFile(existingDocument.s3Key);
+    await existingDocument.deleteOne();
   }
 
-  // Handle workflow documents (OPT documents)
   if (requiresWorkflow(documentType)) {
     const stepOrder = getStepOrder(documentType);
-    
-    // Check if previous step is approved
     const previousStepApproved = await checkPreviousStepApproved(req.user.id, stepOrder);
     if (!previousStepApproved) {
       res.status(400);
@@ -77,10 +74,7 @@ const uploadDocument = asyncHandler(async (req, res) => {
   }
 
   try {
-    // Upload file to S3
     const s3Result = await S3Service.uploadFile(req.file, req.user.id, documentType);
-
-    // Determine initial status based on document type
     const initialStatus = requiresWorkflow(documentType) ? 'pending' : 'approved';
 
     const documentData = {
@@ -97,7 +91,6 @@ const uploadDocument = asyncHandler(async (req, res) => {
       status: initialStatus
     };
 
-    // Add stepOrder only for workflow documents
     if (requiresWorkflow(documentType)) {
       documentData.stepOrder = getStepOrder(documentType);
     }
