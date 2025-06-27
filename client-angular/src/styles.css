@@ -1,1 +1,60 @@
 /* You can add global styles to this file, and also import other style files */
+@import '~@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* Global styles */
+html, body { 
+  height: 100%; 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+/* Page container styles */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.page-container h2 {
+  color: #1976d2;
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+
+.page-container > p {
+  color: #666;
+  margin-bottom: 24px;
+}
+
+/* Material overrides */
+.mat-card {
+  margin-bottom: 24px;
+}
+
+.mat-card-header {
+  margin-bottom: 16px;
+}
+
+.mat-card-title {
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.mat-card-subtitle {
+  color: #666;
+}
+
+/* Navigation styles */
+.mat-nav-list .mat-list-item {
+  border-radius: 4px;
+  margin: 0 8px 4px 8px;
+}
+
+.mat-nav-list .mat-list-item.active-link {
+  background-color: #1976d2 !important;
+  color: white !important;
+}
+
+.mat-nav-list .mat-list-item.active-link .mat-icon {
+  color: white !important;
+}

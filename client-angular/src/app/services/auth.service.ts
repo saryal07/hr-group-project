@@ -36,6 +36,16 @@ export class AuthService {
 
   isHR(): boolean {
     const user = this.getCurrentUser();
-    return user?.role === 'HR';
+    return user?.role === 'admin';
+  }
+
+  isAdmin(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'admin';
+  }
+
+  isEmployee(): boolean {
+    const user = this.getCurrentUser();
+    return user?.role === 'employee';
   }
 }

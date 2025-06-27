@@ -1,0 +1,84 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.home-container h1 {
+  color: #1976d2;
+  margin-bottom: 8px;
+  font-size: 2.5rem;
+  font-weight: 300;
+}
+
+.home-container p {
+  color: #666;
+  font-size: 1.2rem;
+  margin-bottom: 40px;
+}
+
+.overview-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-top: 32px;
+}
+
+.overview-card {
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.overview-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0,0,0,0.1);
+}
+
+.overview-card mat-card-header {
+  margin-bottom: 16px;
+}
+
+.overview-card mat-icon[mat-card-avatar] {
+  background-color: #1976d2;
+  color: white;
+  font-size: 24px;
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  text-align: center;
+  border-radius: 50%;
+}
+
+.overview-card mat-card-title {
+  color: #333;
+  font-weight: 500;
+}
+
+.overview-card mat-card-content p {
+  color: #666;
+  margin: 0;
+  font-size: 1rem;
+}
+
+.overview-card mat-card-actions {
+  padding-top: 16px;
+}
+
+.overview-card button {
+  color: #1976d2;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .home-container {
+    padding: 16px;
+  }
+  
+  .home-container h1 {
+    font-size: 2rem;
+  }
+  
+  .overview-cards {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}

@@ -32,15 +32,22 @@ export class LoginComponent {
 
     this.authService.login(this.loginForm.value).subscribe({
       next: (res) => {
+        console.log('Login response:', res);
         const role = res.user?.role;
+        console.log('User role:', role);
+        
         this.authService.setSession(res.token, res.user);
+        
         if (role === 'admin') {
+          console.log('Redirecting to HR dashboard');
           this.router.navigate(['/hr']);
         } else {
+          console.log('Redirecting to employee dashboard');
           this.router.navigate(['/employee']);
         }
       },
       error: (err) => {
+        console.error('Login error:', err);
         this.error = err.error?.message || 'Login failed';
       },
     });
