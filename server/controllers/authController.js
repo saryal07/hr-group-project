@@ -61,7 +61,8 @@ const loginEmployee = asyncHandler(async (req, res) => {
     token,
     user: {
       id: user._id,
-      username: user.username
+      username: user.username,
+      role: user.role,
     }
   });
 });
@@ -115,7 +116,8 @@ const registerEmployee = asyncHandler(async (req, res) => {
     user: {
       id: user._id,
       email: user.email,
-      username: user.username
+      username: user.username,
+      role: user.role,
     }
   });
 });
