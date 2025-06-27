@@ -64,7 +64,9 @@ const upload = multer({
 });
 
 // Initialize S3 bucket on startup
-S3Service.ensureBucketExists().catch(console.error);
+// Commented out to allow server startup without real AWS credentials
+// Uncomment when you have valid AWS credentials set up
+// S3Service.ensureBucketExists().catch(console.error);
 
 // Document upload and retrieval routes
 router
