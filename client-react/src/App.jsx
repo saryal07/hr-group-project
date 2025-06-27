@@ -5,6 +5,7 @@ import { CssBaseline, Container } from '@mui/material';
 import Register from './pages/Register';
 import Login from './pages/Login';
 import OnboardingPage from './pages/OnboardingPage';
+import Home from './pages/Home';
 import AdminInvite from './pages/AdminInvite';
 import PersonalInformation from './pages/PersonalInformation';
 import Housing from './pages/Housing';
@@ -63,8 +64,16 @@ const App = () => {
               path="/onboarding-page"
               element={
                 <PrivateRoute>
+                  <OnboardingPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <PrivateRoute>
                   <AuthenticatedLayout>
-                    <OnboardingPage />
+                    <Home />
                   </AuthenticatedLayout>
                 </PrivateRoute>
               }

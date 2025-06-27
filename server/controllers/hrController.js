@@ -66,13 +66,15 @@ const getOnboardingStatus = asyncHandler(async (req, res) => {
 
 // PUT onboarding status (HR approves or rejects applications, or resets status to allow resubmission)
 const updateOnboardingStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
+  const { status, hrFeedback } = req.body;
   const employee = await Employee.findByIdAndUpdate(req.params.employeeId, {
-    onboardingStatus: status
+    onboardingStatus: status,
+    hrFeedback: hrFeedback,
   }, { new: true });
 
   if (!employee) throw new Error('Employee not found');
-  res.json({ message: 'Onboarding status updated', onboardingStatus: employee.onboardingStatus });
+
+  res.json({ message: 'Onboarding status updated', onboardingStatus: employee.onboardingStatus, hrFeedback: employee.hrFeedback });
 });
 
 // GET /hr/documents - Get all documents for HR review
