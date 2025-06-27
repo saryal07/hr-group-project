@@ -73,7 +73,7 @@ const DocumentUpload = ({ open, onClose, onSuccess }) => {
         formData.append('description', description);
       }
 
-      await axios.post('http://localhost:3000/api/documents', formData, {
+      await axios.post('/api/documents', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

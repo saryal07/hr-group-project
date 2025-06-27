@@ -2,11 +2,12 @@
   "name": "client-react",
   "version": "0.1.0",
   "private": true,
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:5001",
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@mui/icons-material": "^7.1.2",
     "@mui/material": "^7.1.2",
     "@testing-library/dom": "^10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
@@ -43,5 +44,7 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:5001"
+  "devDependencies": {
+    "source-map-loader": "^2.0.2"
+  }
 }
