@@ -1,16 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   Container,
-  Paper,
   Typography,
   Box,
   Grid,
   TextField,
   Button,
-  Avatar,
   Card,
   CardContent,
-  Divider,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -52,11 +49,8 @@ const PersonalInformation = () => {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('Token loaded from localStorage');
-    }
+    // Using AuthContext for authentication
+    console.log('Loading employee data...');
     
     fetchEmployeeData();
     fetchDocuments();
@@ -192,8 +186,8 @@ const PersonalInformation = () => {
         preferredName: tempData.preferredName,
         email: tempData.email,
         ssn: tempData.ssn,
-        dob: tempData.dob,
-        gender: tempData.gender ? tempData.gender.toLowerCase() : ''
+        dob: tempData.dob ? tempData.dob : null,
+        ...(tempData.gender && { gender: tempData.gender.toLowerCase() })
       };
     } else if (editingSection === 'address') {
       update = {
@@ -214,8 +208,8 @@ const PersonalInformation = () => {
       update = {
         visa: {
           title: tempData.visaTitle,
-          startDate: tempData.startDate,
-          endDate: tempData.endDate
+          startDate: tempData.startDate ? tempData.startDate : null,
+          endDate: tempData.endDate ? tempData.endDate : null
         }
       };
     } else if (editingSection === 'emergencyContact') {

@@ -10,7 +10,6 @@ import {
   ListItem,
   ListItemText,
   ListItemIcon,
-  Divider,
   Button,
   Dialog,
   DialogTitle,
@@ -22,17 +21,13 @@ import {
   Chip,
   Accordion,
   AccordionSummary,
-  AccordionDetails,
-  IconButton
+  AccordionDetails
 } from '@mui/material';
 import {
   Home,
   Person,
-  Phone,
   Add,
   ExpandMore,
-  Description,
-  Visibility,
   Comment,
   Report
 } from '@mui/icons-material';
@@ -51,12 +46,8 @@ const Housing = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    // Set up axios interceptor to use token from localStorage
-    const token = localStorage.getItem('authToken');
-    if (token) {
-      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-      console.log('Token loaded from localStorage');
-    }
+    // Using AuthContext for authentication
+    console.log('Loading housing data...');
     
     fetchHousingData();
     fetchFacilityReports();
