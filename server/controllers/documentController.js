@@ -59,9 +59,11 @@ const uploadDocument = asyncHandler(async (req, res) => {
     documentType: documentType
   });
 
+   // Delete existing document if present
   if (existingDocument) {
-    res.status(400);
-    throw new Error(`Document of type ${documentType} already exists`);
+    console.log(`🔁 Replacing existing document: ${existingDocument._id}`);
+    await S3Service.deleteFile(existingDocument.s3Key);
+    await existingDocument.deleteOne();
   }
 
   // Handle workflow documents (OPT documents)

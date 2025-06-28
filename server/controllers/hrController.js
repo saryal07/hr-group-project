@@ -1,7 +1,38 @@
 const Housing = require('../models/Housing');
 const Employee = require('../models/Employee');
 const Document = require('../models/Document');
+const TokenModel = require('../models/TokenModel');
+const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
+
+// Create registration token
+const createRegistrationToken = asyncHandler(async (req, res) => {
+  const { email } = req.body;
+
+  if (!email) {
+    res.status(400);
+    throw new Error('Email is required');
+  }
+
+  const emailExists = await Employee.findOne({ email });
+  if (emailExists) {
+    res.status(409);
+    throw new Error('Email already registered');
+  }
+
+  // Generate token using JWT
+  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '3h' });
+
+  // Save token in DB (so it can be validated later)
+  await TokenModel.create({
+    email,
+    token,
+    used: false,
+    expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours
+  });
+
+  res.status(200).json({ token, message: 'Invitation sent' });
+});
 
 // GET housing
 const getHousing = asyncHandler(async (req, res) => {
@@ -35,13 +66,15 @@ const getOnboardingStatus = asyncHandler(async (req, res) => {
 
 // PUT onboarding status (HR approves or rejects applications, or resets status to allow resubmission)
 const updateOnboardingStatus = asyncHandler(async (req, res) => {
-  const { status } = req.body;
+  const { status, hrFeedback } = req.body;
   const employee = await Employee.findByIdAndUpdate(req.params.employeeId, {
-    onboardingStatus: status
+    onboardingStatus: status,
+    hrFeedback: hrFeedback,
   }, { new: true });
 
   if (!employee) throw new Error('Employee not found');
-  res.json({ message: 'Onboarding status updated', onboardingStatus: employee.onboardingStatus });
+
+  res.json({ message: 'Onboarding status updated', onboardingStatus: employee.onboardingStatus, hrFeedback: employee.hrFeedback });
 });
 
 // GET /hr/documents - Get all documents for HR review
@@ -224,6 +257,7 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
 });
 
 module.exports = {
+  createRegistrationToken,
   getHousing,
   createHousing,
   updateHousing,

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import * as MUI from '@mui/material';
 import { Refresh, Info } from '@mui/icons-material';
-import { WorkflowProgress, DocumentStepCard } from '../components';
+import DocumentStepCard from '../components/DocumentStepCard';
+import WorkflowProgress from '../components/WorkflowProgress';
 import visaStatusApi from '../services/visaStatusApi';
 
 const VisaStatusManagementPage = () => {

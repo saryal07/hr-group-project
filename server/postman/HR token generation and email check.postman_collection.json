@@ -1,0 +1,26 @@
+{
+	"info": {
+		"_postman_id": "607f6202-00f9-467f-8027-ce936c44a406",
+		"name": "HR token generation and email check",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "34150301"
+	},
+	"item": [
+		{
+			"name": "Generate a token",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		},
+		{
+			"name": "Check the token",
+			"request": {
+				"method": "GET",
+				"header": []
+			},
+			"response": []
+		}
+	]
+}

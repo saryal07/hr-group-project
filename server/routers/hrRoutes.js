@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { 
+const {
+  createRegistrationToken, 
   getHousing, 
   createHousing, 
   updateHousing, 
@@ -19,7 +20,11 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 
 router.use(protect);
 console.log('Admin middleware:', adminMiddleware);
-router.use(adminMiddleware); // ensure only admin has access to these
+router.use(adminMiddleware); // to ensure only admin has access to these
+
+// Sending Tokenized registration link
+router.route('/invite')
+  .post(createRegistrationToken);
 
 // Housing routes
 router.route('/housing')

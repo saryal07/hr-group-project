@@ -1,84 +1,176 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import * as MUI from '@mui/material';
-import { Assignment, Home } from '@mui/icons-material';
-import './App.css';
-import { VisaStatusManagementPage } from './features/visa-status-management/pages';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
+import { ThemeProvider, createTheme } from '@mui/material/styles';
+import { CssBaseline, Container } from '@mui/material';
+import Register from './pages/Register';
+import Login from './pages/Login';
+import OnboardingPage from './pages/OnboardingPage';
+import Home from './pages/Home';
+import AdminInvite from './pages/AdminInvite';
+import PersonalInformation from './pages/PersonalInformation';
+import Housing from './pages/Housing';
+import Navigation from './components/Navigation';
+import Dashboard from './pages/Dashboard';
+import FacilityReports from './pages/FacilityReports';
+import ReportDetail from './pages/ReportDetail';
+import VisaStatusManagementPage from './pages/VisaStatusManagementPage';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 
-function App() {
+const theme = createTheme({
+  palette: {
+    primary: {
+      main: '#1976d2',
+    },
+    secondary: {
+      main: '#dc004e',
+    },
+  },
+});
+
+const PrivateRoute = ({ children }) => {
+  const { user, loading } = useAuth();
+  if (loading) return null;
+
+  return user ? children : <Navigate to="/login" replace />;
+};
+
+// Layout wrapper for authenticated pages
+const AuthenticatedLayout = ({ children }) => {
   return (
-    <Router>
-      <MUI.Box sx={{ flexGrow: 1 }}>
-        {/* Navigation Bar */}
-        <MUI.AppBar position="static">
-          <MUI.Toolbar>
-            <MUI.Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-              HR Onboarding Portal
-            </MUI.Typography>
-            <MUI.Button 
-              color="inherit" 
-              component={Link} 
-              to="/"
-              startIcon={<Home />}
-            >
-              Home
-            </MUI.Button>
-            <MUI.Button 
-              color="inherit" 
-              component={Link} 
-              to="/visa-status"
-              startIcon={<Assignment />}
-            >
-              Visa Status
-            </MUI.Button>
-          </MUI.Toolbar>
-        </MUI.AppBar>
-
-        {/* Routes */}
-        <Routes>
-          <Route path="/visa-status" element={<VisaStatusManagementPage />} />
-          <Route path="/" element={
-            <MUI.Container maxWidth="md">
-              <MUI.Box my={4} textAlign="center">
-                <MUI.Typography variant="h3" component="h1" gutterBottom>
-                  Welcome to HR Onboarding Portal
-                </MUI.Typography>
-                <MUI.Typography variant="h6" color="text.secondary" paragraph>
-                  Manage your employee onboarding process
-                </MUI.Typography>
-                
-                <MUI.Box mt={4}>
-                  <MUI.Grid container spacing={3} justifyContent="center">
-                    <MUI.Grid>
-                      <MUI.Card sx={{ minWidth: 275, textAlign: 'center' }}>
-                        <MUI.CardContent>
-                          <Assignment sx={{ fontSize: 60, color: 'primary.main', mb: 2 }} />
-                          <MUI.Typography variant="h5" component="h2" gutterBottom>
-                            Visa Status Management
-                          </MUI.Typography>
-                          <MUI.Typography variant="body2" color="text.secondary" paragraph>
-                            Track and manage your OPT visa workflow documents
-                          </MUI.Typography>
-                          <MUI.Button 
-                            variant="contained" 
-                            component={Link} 
-                            to="/visa-status"
-                            size="large"
-                          >
-                            Go to Visa Status
-                          </MUI.Button>
-                        </MUI.CardContent>
-                      </MUI.Card>
-                    </MUI.Grid>
-                  </MUI.Grid>
-                </MUI.Box>
-              </MUI.Box>
-            </MUI.Container>
-          } />
-        </Routes>
-      </MUI.Box>
-    </Router>
+    <div className="App">
+      <Navigation />
+      {children}
+    </div>
   );
-}
+};
+
+const App = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <AuthProvider>
+        <CssBaseline />
+        <Router>
+          <Routes>
+            {/* Public routes */}
+            <Route
+              path="/register/:token"
+              element={
+                <Container maxWidth="sm">
+                  <Register />
+                </Container>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <Container maxWidth="sm">
+                  <Login />
+                </Container>
+              }
+            />
+
+            {/* Protected routes with navigation */}
+            <Route
+              path="/onboarding-page"
+              element={
+                <PrivateRoute>
+                  <OnboardingPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/home"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <Home />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/personal-information"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <PersonalInformation />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/housing"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <Housing />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/visa-status"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <VisaStatusManagementPage />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin-invite"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <AdminInvite />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <Dashboard />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facility-reports"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <FacilityReports />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facility-reports/:id"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <ReportDetail />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
+          </Routes>
+        </Router>
+      </AuthProvider>
+    </ThemeProvider>
+  );
+};
 
 export default App;
