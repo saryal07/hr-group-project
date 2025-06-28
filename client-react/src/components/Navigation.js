@@ -57,7 +57,7 @@ const Navigation = () => {
     },
     {
       title: 'Visa Status Management',
-      path: '/onboarding-page', // ✅ Exists in App.jsx
+      path: '/visa-status', // ✅ Updated to correct route
       icon: <Assignment sx={{ mr: 1 }} />,
     },
     {

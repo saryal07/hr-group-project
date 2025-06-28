@@ -18,6 +18,7 @@ import Navigation from './components/Navigation';
 import Dashboard from './pages/Dashboard';
 import FacilityReports from './pages/FacilityReports';
 import ReportDetail from './pages/ReportDetail';
+import VisaStatusManagementPage from './pages/VisaStatusManagementPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
@@ -113,6 +114,16 @@ const App = () => {
               }
             />
             <Route
+              path="/visa-status"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <VisaStatusManagementPage />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
               path="/admin-invite"
               element={
                 <PrivateRoute>
@@ -122,8 +133,6 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-
-            {/* Facility Dashboard Route */}
             <Route
               path="/dashboard"
               element={
@@ -134,8 +143,6 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-
-            {/* Facility Reports Routes */}
             <Route
               path="/facility-reports"
               element={
@@ -157,9 +164,8 @@ const App = () => {
               }
             />
 
-            {/* Default redirects */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
           </Routes>
         </Router>
       </AuthProvider>
