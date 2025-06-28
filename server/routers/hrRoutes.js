@@ -13,7 +13,9 @@ const {
   approveDocument,
   rejectDocument,
   getOptEmployees,
-  getWorkflowSummary
+  getWorkflowSummary,
+  getInviteHistory,
+  getSpecificOnboarding
 } = require('../controllers/hrController');
 const { protect } = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
@@ -24,7 +26,11 @@ router.use(adminMiddleware); // to ensure only admin has access to these
 
 // Sending Tokenized registration link
 router.route('/invite')
-  .post(createRegistrationToken);
+  .post(createRegistrationToken)
+  
+router.route('/invite-history').get(getInviteHistory);
+
+router.route('/onboarding').get(getSpecificOnboarding);
 
 // Housing routes
 router.route('/housing')

@@ -2,20 +2,21 @@ const Housing = require('../models/Housing');
 const Employee = require('../models/Employee');
 const Document = require('../models/Document');
 const TokenModel = require('../models/TokenModel');
+const Invite = require('../models/Invite');
 const jwt = require('jsonwebtoken');
 const asyncHandler = require('express-async-handler');
 
 // Create registration token
 const createRegistrationToken = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+  const { name, email } = req.body;
 
   if (!email) {
     res.status(400);
     throw new Error('Email is required');
   }
 
-  const emailExists = await Employee.findOne({ email });
-  if (emailExists) {
+  const user = await Employee.findOne({ email });
+  if (user) {
     res.status(409);
     throw new Error('Email already registered');
   }
@@ -31,7 +32,31 @@ const createRegistrationToken = asyncHandler(async (req, res) => {
     expiresAt: new Date(Date.now() + 3 * 60 * 60 * 1000), // 3 hours
   });
 
-  res.status(200).json({ token, message: 'Invitation sent' });
+   await Invite.create({
+    email,
+    name,
+    token,
+    registered: false,
+  });
+
+  res.status(200).json({
+    email,
+    name,
+    token,
+    message: 'Invitation sent'
+  });
+
+});
+
+// Fetch registration invite history
+const getInviteHistory = asyncHandler(async (req, res) => {
+  try {
+    const history = await Invite.find().sort({ createdAt: -1 }); // newest first
+    res.json(history);
+  } catch (err) {
+    console.error('Error fetching invite history:', err);
+    res.status(500).json({ message: 'Failed to retrieve invite history' });
+  }
 });
 
 // GET housing
@@ -61,7 +86,23 @@ const updateHousing = asyncHandler(async (req, res) => {
 const getOnboardingStatus = asyncHandler(async (req, res) => {
   const employee = await Employee.findById(req.params.employeeId);
   if (!employee) throw new Error('Employee not found');
-  res.json({ onboardingStatus: employee.onboardingStatus });
+  res.json({ employee });
+});
+
+const getSpecificOnboarding = asyncHandler(async (req, res) => {
+  const status = req.query.status;
+
+  if (!status) {
+    return res.status(400).json({ message: 'Status query is required' });
+  }
+
+  try {
+    const employees = await Employee.find({ onboardingStatus: status });
+    res.status(200).json(employees);
+  } catch (err) {
+    console.error('Error fetching onboarding applications:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
 
 // PUT onboarding status (HR approves or rejects applications, or resets status to allow resubmission)
@@ -258,6 +299,7 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
 
 module.exports = {
   createRegistrationToken,
+  getInviteHistory,
   getHousing,
   createHousing,
   updateHousing,
@@ -269,5 +311,6 @@ module.exports = {
   approveDocument,
   rejectDocument,
   getOptEmployees,
-  getWorkflowSummary
+  getWorkflowSummary,
+  getSpecificOnboarding
 };

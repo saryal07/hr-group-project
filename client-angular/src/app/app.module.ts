@@ -2,8 +2,8 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule } from '@angular/forms';
-import { HttpClientModule } from '@angular/common/http';
-
+import { HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
@@ -13,6 +13,11 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
+import { MatChipsModule } from '@angular/material/chips';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -24,6 +29,7 @@ import { EmployeeProfilesComponent } from './hr/employee-profiles/employee-profi
 import { VisaStatusManagementComponent } from './hr/visa-status-management/visa-status-management.component';
 import { HiringManagementComponent } from './hr/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './hr/housing-management/housing-management.component';
+import { HrApplicationViewComponent } from './hr/hiring-management/hr-application-view/hr-application-view.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +41,8 @@ import { HousingManagementComponent } from './hr/housing-management/housing-mana
     EmployeeProfilesComponent,
     VisaStatusManagementComponent,
     HiringManagementComponent,
-    HousingManagementComponent
+    HousingManagementComponent,
+    HrApplicationViewComponent
   ],
   imports: [
     BrowserModule,
@@ -51,9 +58,18 @@ import { HousingManagementComponent } from './hr/housing-management/housing-mana
     MatButtonModule,
     MatMenuModule,
     MatCardModule,
-    MatTabsModule
+    MatTabsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSnackBarModule,
+    MatTableModule,
+    MatChipsModule
   ],
-  providers: [],
+  providers: [{
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }],
   bootstrap: [AppComponent]
 })
 export class AppModule { }
