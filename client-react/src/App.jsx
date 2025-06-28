@@ -1,5 +1,10 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline, Container } from '@mui/material';
 import Register from './pages/Register';
@@ -10,6 +15,10 @@ import AdminInvite from './pages/AdminInvite';
 import PersonalInformation from './pages/PersonalInformation';
 import Housing from './pages/Housing';
 import Navigation from './components/Navigation';
+import Dashboard from './pages/Dashboard';
+import FacilityReports from './pages/FacilityReports';
+import ReportDetail from './pages/ReportDetail';
+import VisaStatusManagementPage from './pages/VisaStatusManagementPage';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 
 const theme = createTheme({
@@ -48,17 +57,23 @@ const App = () => {
         <Router>
           <Routes>
             {/* Public routes */}
-            <Route path="/register/:token" element={
-              <Container maxWidth="sm">
-                <Register />
-              </Container>
-            } />
-            <Route path="/login" element={
-              <Container maxWidth="sm">
-                <Login />
-              </Container>
-            } />
-            
+            <Route
+              path="/register/:token"
+              element={
+                <Container maxWidth="sm">
+                  <Register />
+                </Container>
+              }
+            />
+            <Route
+              path="/login"
+              element={
+                <Container maxWidth="sm">
+                  <Login />
+                </Container>
+              }
+            />
+
             {/* Protected routes with navigation */}
             <Route
               path="/onboarding-page"
@@ -98,8 +113,18 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-            <Route 
-              path="/admin-invite" 
+            <Route
+              path="/visa-status"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <VisaStatusManagementPage />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin-invite"
               element={
                 <PrivateRoute>
                   <AuthenticatedLayout>
@@ -108,10 +133,39 @@ const App = () => {
                 </PrivateRoute>
               }
             />
-            
-            {/* Default redirects */}
-            <Route path="/" element={<Navigate to="/login" replace />} />
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <Dashboard />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facility-reports"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <FacilityReports />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/facility-reports/:id"
+              element={
+                <PrivateRoute>
+                  <AuthenticatedLayout>
+                    <ReportDetail />
+                  </AuthenticatedLayout>
+                </PrivateRoute>
+              }
+            />
+
+            {/* Default redirect */}
+            <Route path="/" element={<Navigate to="/home" replace />} />
           </Routes>
         </Router>
       </AuthProvider>

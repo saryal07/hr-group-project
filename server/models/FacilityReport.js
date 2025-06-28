@@ -1,41 +1,99 @@
 const mongoose = require('mongoose');
 
-const commentSchema = new mongoose.Schema({
-  description: {
-    type: String,
-    required: true
+const facilityReportSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: [true, 'Report title is required'],
+      trim: true,
+      maxLength: [100, 'Title cannot exceed 100 characters'],
+    },
+    description: {
+      type: String,
+      required: [true, 'Report description is required'],
+      trim: true,
+      maxLength: [1000, 'Description cannot exceed 1000 characters'],
+    },
+    status: {
+      type: String,
+      enum: ['Open', 'In Progress', 'Resolved'],
+      default: 'Open',
+    },
+    priority: {
+      type: String,
+      enum: ['Low', 'Medium', 'High'],
+      default: 'Medium',
+    },
+    category: {
+      type: String,
+      enum: [
+        'Maintenance',
+        'Safety',
+        'Utilities',
+        'Cleaning',
+        'Security',
+        'Other',
+      ],
+      required: [true, 'Category is required'],
+    },
+    reportedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Employee',
+      required: true,
+    },
+    housing: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Housing',
+    },
+    assignedTo: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Employee',
+    },
+    comments: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'FacilityComment',
+      },
+    ],
+    attachments: [
+      {
+        filename: String,
+        s3Key: String,
+        uploadedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
+    updatedAt: {
+      type: Date,
+      default: Date.now,
+    },
+    resolvedAt: {
+      type: Date,
+    },
   },
-  createdBy: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
-    required: true
-  },
-  timestamp: {
-    type: Date,
-    default: Date.now
+  {
+    timestamps: true,
   }
-}, { timestamps: true });
+);
 
-const facilityReportSchema = new mongoose.Schema({
-  title: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String,
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['open', 'in_progress', 'closed'],
-    default: 'open'
-  },
-  employee: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employee',
-    required: true
-  },
-  comments: [commentSchema]
-}, { timestamps: true });
+// Update the updatedAt field before saving
+facilityReportSchema.pre('save', function (next) {
+  this.updatedAt = Date.now();
+  if (this.status === 'Resolved' && !this.resolvedAt) {
+    this.resolvedAt = Date.now();
+  }
+  next();
+});
 
-module.exports = mongoose.model('FacilityReport', facilityReportSchema); 
+// Index for better query performance
+facilityReportSchema.index({ reportedBy: 1, createdAt: -1 });
+facilityReportSchema.index({ status: 1, priority: 1 });
+facilityReportSchema.index({ housing: 1 });
+
+module.exports = mongoose.model('FacilityReport', facilityReportSchema);

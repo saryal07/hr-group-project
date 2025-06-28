@@ -8,9 +8,15 @@ import {
   Box,
   Menu,
   MenuItem,
-  IconButton
+  IconButton,
 } from '@mui/material';
-import { AccountCircle, Logout } from '@mui/icons-material';
+import {
+  AccountCircle,
+  Logout,
+  Person,
+  Assignment,
+  Home,
+} from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
 const Navigation = () => {
@@ -38,47 +44,62 @@ const Navigation = () => {
   };
 
   const handleProfile = () => {
-    navigate('/personal-information');
+    navigate('/personal-information'); // Use actual route
     handleClose();
   };
+
+  // Use ACTUAL routes that exist in App.jsx
+  const navItems = [
+    {
+      title: 'Personal Information',
+      path: '/personal-information', // ✅ Exists in App.jsx
+      icon: <Person sx={{ mr: 1 }} />,
+    },
+    {
+      title: 'Visa Status Management',
+      path: '/visa-status', // ✅ Updated to correct route
+      icon: <Assignment sx={{ mr: 1 }} />,
+    },
+    {
+      title: 'Housing',
+      path: '/housing', // ✅ Exists in App.jsx
+      icon: <Home sx={{ mr: 1 }} />,
+    },
+  ];
 
   return (
     <AppBar position="static">
       <Toolbar>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+        {/* Brand with dashboard link */}
+        <Typography
+          variant="h6"
+          component="div"
+          sx={{
+            flexGrow: 1,
+            cursor: 'pointer',
+            '&:hover': { opacity: 0.8 },
+          }}
+          onClick={() => navigate('/home')}
+        >
           HR Employee Portal
         </Typography>
-        
+
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          <Button
-            color="inherit"
-            onClick={() => navigate('/onboarding-page')}
-            sx={{
-              backgroundColor: isActive('/onboarding-page') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-            }}
-          >
-            Dashboard
-          </Button>
-          
-          <Button
-            color="inherit"
-            onClick={() => navigate('/personal-information')}
-            sx={{
-              backgroundColor: isActive('/personal-information') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-            }}
-          >
-            Personal Information
-          </Button>
-          
-          <Button
-            color="inherit"
-            onClick={() => navigate('/housing')}
-            sx={{
-              backgroundColor: isActive('/housing') ? 'rgba(255, 255, 255, 0.1)' : 'transparent'
-            }}
-          >
-            Housing
-          </Button>
+          {/* Navigation items with CORRECT routes */}
+          {navItems.map((item) => (
+            <Button
+              key={item.path}
+              color="inherit"
+              onClick={() => navigate(item.path)}
+              sx={{
+                backgroundColor: isActive(item.path)
+                  ? 'rgba(255, 255, 255, 0.1)'
+                  : 'transparent',
+              }}
+            >
+              {item.title}
+            </Button>
+          ))}
 
           {/* User Menu */}
           <Box sx={{ display: 'flex', alignItems: 'center', ml: 2 }}>
@@ -126,4 +147,4 @@ const Navigation = () => {
   );
 };
 
-export default Navigation; 
+export default Navigation;
