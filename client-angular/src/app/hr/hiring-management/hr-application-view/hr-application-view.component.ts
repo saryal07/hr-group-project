@@ -60,4 +60,40 @@ export class HrApplicationViewComponent implements OnInit {
       window.open(url, '_blank');
     }
   }
+
+  approveApplication() {
+    this.http.put(`/api/hr/onboarding/${this.application._id}`, { status: 'Approved' })
+      .subscribe({
+        next: () => {
+          alert('Application approved.');
+          window.close(); // or router.navigate if opened in same tab
+        },
+        error: err => {
+          console.error('Approval failed:', err);
+          alert('Failed to approve application.');
+        }
+      });
+  }
+
+  openRejectionPrompt() {
+    const hrFeedback = prompt('Feedback for rejection:');
+    if (hrFeedback !== null) {
+      this.rejectApplication(hrFeedback);
+    }
+  }
+
+  rejectApplication(hrFeedback: string) {
+    this.http.put(`/api/hr/onboarding/${this.application._id}`, { status: 'Rejected', hrFeedback })
+      .subscribe({
+        next: () => {
+          alert('Application rejected.');
+          window.close(); // or router.navigate
+        },
+        error: err => {
+          console.error('Rejection failed:', err);
+          alert('Failed to reject application.');
+        }
+      });
+  }
+
 }

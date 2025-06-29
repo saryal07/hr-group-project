@@ -74,31 +74,67 @@
   </mat-card-content>
 </mat-card>
 
-<h2 class="mt-4 mb-2">Submitted Applications</h2>
-<mat-tab-group>
-  <mat-tab label="Pending">
-    <div *ngFor="let app of applications['Pending']">
-      <p><strong>{{ app.fullName }}</strong> – {{ app.email }}</p>
-      <button mat-button (click)="viewApplication(app._id)">View Application</button>
-      <button mat-button color="primary" (click)="approveApplication(app._id)">Approve</button>
-      <button mat-button color="warn" (click)="openRejectionPrompt(app._id)">Reject</button>
-    </div>
-  </mat-tab>
+<!-- Submitted Applications Tabs -->
+<mat-card class="mat-elevation-z2" style="margin: 2rem auto; max-width: 900px;">
+  <mat-card-title>Submitted Applications</mat-card-title>
+  <mat-card-content>
+    <mat-tab-group>
+      <!-- Pending Tab -->
+      <mat-tab label="Pending">
+        <div *ngIf="(applications['Pending'] || []).length > 0; else noPending" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Pending']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
 
-  <mat-tab label="Rejected">
-    <div *ngFor="let app of applications['Rejected']">
-      <p><strong>{{ app.fullName }}</strong> – {{ app.email }}</p>
-      <button mat-button (click)="viewApplication(app._id)">View Application</button>
-      <p><strong>Feedback:</strong> {{ app.feedback }}</p>
-    </div>
-  </mat-tab>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+        <ng-template #noPending><p>No pending applications.</p></ng-template>
+      </mat-tab>
 
-  <mat-tab label="Approved">
-    <div *ngFor="let app of applications['Approved']">
-      <p><strong>{{ app.fullName }}</strong> – {{ app.email }}</p>
-      <button mat-button (click)="viewApplication(app._id)">View Application</button>
-    </div>
-  </mat-tab>
-</mat-tab-group>
+      <!-- Rejected Tab -->
+      <mat-tab label="Rejected">
+        <div *ngIf="(applications['Rejected'] || []).length > 0; else noRejected" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Rejected']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
 
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+          </div>
+        </div>
+        <ng-template #noRejected><p>No rejected applications.</p></ng-template>
+      </mat-tab>
 
+      <!-- Approved Tab -->
+      <mat-tab label="Approved">
+        <div *ngIf="(applications['Approved'] || []).length > 0; else noApproved" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Approved']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+          </div>
+        </div>
+        <ng-template #noApproved><p>No approved applications.</p></ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

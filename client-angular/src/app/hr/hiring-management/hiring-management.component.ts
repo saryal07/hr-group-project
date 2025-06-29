@@ -13,7 +13,8 @@ interface InviteHistoryEntry {
 
 export interface OnboardingApplication {
   _id: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
   email: string;
   status: 'Pending' | 'Approved' | 'Rejected';
   feedback?: string;

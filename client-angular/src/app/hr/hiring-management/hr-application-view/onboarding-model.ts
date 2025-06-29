@@ -63,7 +63,7 @@ export interface OnboardingApplication {
   driversLicense?: DriversLicense;
   reference?: Reference;
   emergencyContacts?: EmergencyContact[];
-  status: 'Pending' | 'Approved' | 'Rejected';
-  feedback?: string;
+  onboardingStatus: 'Pending' | 'Approved' | 'Rejected';
+  hrFeedback?: string;
   documents: { name: string; url: string }[];
 }

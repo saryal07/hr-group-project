@@ -2,7 +2,6 @@
     <mat-card class="mat-elevation-z4" style="margin: 2rem auto; max-width: 900px;">
         <mat-card-title>Submitted Form Summary</mat-card-title>
         <mat-card-content>
-
             <mat-divider></mat-divider>
             <h3>Personal Info</h3>
             <p><strong>Full Name:</strong> {{ application.firstName }} {{ application.middleName }} {{ application.lastName }}</p>
@@ -71,10 +70,14 @@
                 <p>No documents uploaded.</p>
             </ng-template>
 
+            <div *ngIf="application.onboardingStatus === 'Pending'" style="display: flex; gap: 12px; margin-top: 2rem;">
+                <button mat-raised-button color="primary" (click)="approveApplication()">Approve</button>
+                <button mat-raised-button color="warn" (click)="openRejectionPrompt()">Reject</button>
+            </div>
 
-            <div *ngIf="application.status === 'Rejected'">
-            <h4>Feedback</h4>
-            <p style="color: red;">{{ application.feedback }}</p>
+            <div *ngIf="application.onboardingStatus === 'Rejected'">
+                <h4>Feedback:</h4>
+                <p style="color: red;">{{ application.hrFeedback }}</p>
             </div>
         </mat-card-content>
     </mat-card>
