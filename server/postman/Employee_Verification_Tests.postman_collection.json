@@ -1,0 +1,279 @@
+{
+  "info": {
+    "name": "Employee Verification Tests",
+    "description": "Test collection to verify if employee with ID 685b0d9f8741dd4286961605 exists in the database",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5001",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "employeeToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "targetEmployeeId",
+      "value": "685b0d9f8741dd4286961605",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "1. Admin Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"adminhr\",\n  \"password\": \"adminpass9\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('adminToken', response.token);",
+              "    console.log('Admin token saved:', response.token);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Get All Employees (Admin)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hr/employees",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hr", "employees"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has employees array', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data).to.be.an('array');",
+              "    console.log('Total employees found:', response.count);",
+              "});",
+              "",
+              "pm.test('Target employee exists in list', function () {",
+              "    const response = pm.response.json();",
+              "    const targetEmployee = response.data.find(emp => emp.id === pm.collectionVariables.get('targetEmployeeId'));",
+              "    if (targetEmployee) {",
+              "        console.log('✅ Target employee found:', targetEmployee.fullName);",
+              "        pm.expect(targetEmployee).to.not.be.undefined;",
+              "    } else {",
+              "        console.log('❌ Target employee not found in list');",
+              "        console.log('Available employees:', response.data.map(emp => ({ id: emp.id, name: emp.fullName })));",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Get Specific Employee by ID",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{adminToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/hr/employees/{{targetEmployeeId}}",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "hr", "employees", "{{targetEmployeeId}}"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Employee details retrieved', function () {",
+              "    const response = pm.response.json();",
+              "    pm.expect(response.success).to.be.true;",
+              "    pm.expect(response.data.id).to.equal(pm.collectionVariables.get('targetEmployeeId'));",
+              "    console.log('✅ Employee found:', response.data.personalInfo.firstName, response.data.personalInfo.lastName);",
+              "    console.log('Email:', response.data.personalInfo.email);",
+              "    console.log('Role:', response.data.account.role);",
+              "    console.log('Onboarding Status:', response.data.onboarding.status);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Test Employee Login",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"username\": \"testemployee\",\n  \"password\": \"password123\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/auth/login",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "auth", "login"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "if (pm.response.code === 200) {",
+              "    const response = pm.response.json();",
+              "    pm.collectionVariables.set('employeeToken', response.token);",
+              "    console.log('Employee token saved:', response.token);",
+              "    console.log('Employee ID:', response.user.id);",
+              "    console.log('Employee role:', response.user.role);",
+              "}"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Get Employee Profile (as Employee)",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{employeeToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/employee/me",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "employee", "me"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Employee profile retrieved', function () {",
+              "    const response = pm.response.json();",
+              "    console.log('✅ Employee profile loaded successfully');",
+              "    console.log('Name:', response.firstName, response.lastName);",
+              "    console.log('Email:', response.email);",
+              "    console.log('Username:', response.username);",
+              "    console.log('Role:', response.role);",
+              "    console.log('Onboarding Status:', response.onboardingStatus);",
+              "});"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Check Employee Documents",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{employeeToken}}"
+          }
+        ],
+        "url": {
+          "raw": "{{baseUrl}}/api/documents",
+          "host": ["{{baseUrl}}"],
+          "path": ["api", "documents"]
+        }
+      },
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Documents retrieved', function () {",
+              "    const response = pm.response.json();",
+              "    console.log('✅ Documents loaded successfully');",
+              "    console.log('Total documents:', response.count);",
+              "    if (response.data && response.data.length > 0) {",
+              "        response.data.forEach((doc, index) => {",
+              "            console.log(`Document ${index + 1}:`, doc.documentType, '-', doc.originalName);",
+              "        });",
+              "    } else {",
+              "        console.log('No documents uploaded yet');",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ]
+    }
+  ]
+} 

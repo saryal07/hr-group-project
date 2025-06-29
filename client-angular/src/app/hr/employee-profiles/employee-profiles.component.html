@@ -1,22 +1,145 @@
 <div class="page-container">
-  <h2>Employee Profiles</h2>
-  <p>Manage and view all employee profiles and their information.</p>
-  
-  <mat-card>
+  <div class="header-section">
+    <h2>Employee Profiles</h2>
+    <p class="subtitle">Manage and view all employee profiles and their information</p>
+  </div>
+
+  <!-- Search Section -->
+  <mat-card class="search-card">
+    <mat-card-content>
+      <div class="search-section">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search employees</mat-label>
+          <input 
+            matInput 
+            [formControl]="searchControl" 
+            placeholder="Search by first name, last name, preferred name, or email"
+            autocomplete="off">
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+        
+        <div class="search-results-info">
+          <mat-icon class="info-icon">info</mat-icon>
+          <span>{{ getSearchResultMessage() }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="40"></mat-spinner>
+    <p>Loading employees...</p>
+  </div>
+
+  <!-- Error Message -->
+  <mat-card *ngIf="error && !loading" class="error-card">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon class="error-icon">error</mat-icon>
+        <span>{{ error }}</span>
+        <button mat-button color="primary" (click)="loadEmployees()">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Employee Table -->
+  <mat-card *ngIf="!loading && !error" class="table-card">
     <mat-card-header>
-      <mat-card-title>Employee Management</mat-card-title>
-      <mat-card-subtitle>View and manage employee information</mat-card-subtitle>
+      <mat-card-title>Employee Directory</mat-card-title>
+      <mat-card-subtitle>Sorted alphabetically by last name</mat-card-subtitle>
     </mat-card-header>
     <mat-card-content>
-      <p>This section will contain employee profile management functionality.</p>
-      <p>Features to be implemented:</p>
-      <ul>
-        <li>View all employees</li>
-        <li>Search and filter employees</li>
-        <li>View employee details</li>
-        <li>Edit employee information</li>
-        <li>Manage onboarding status</li>
-      </ul>
+      <div class="table-container">
+        <table mat-table [dataSource]="filteredEmployees" class="employee-table">
+          
+          <!-- Name Column -->
+          <ng-container matColumnDef="name">
+            <th mat-header-cell *matHeaderCellDef>Name</th>
+            <td mat-cell *matCellDef="let employee">
+              <div class="name-cell">
+                <a 
+                  href="javascript:void(0)" 
+                  (click)="openEmployeeProfile(employee.id)"
+                  class="employee-name-link"
+                  [title]="'Click to view full profile for ' + employee.fullName">
+                  {{ employee.fullName }}
+                </a>
+                <div class="preferred-name" *ngIf="employee.name.preferred && employee.name.preferred !== employee.name.first">
+                  (Preferred: {{ employee.name.preferred }})
+                </div>
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- SSN Column -->
+          <ng-container matColumnDef="ssn">
+            <th mat-header-cell *matHeaderCellDef>SSN</th>
+            <td mat-cell *matCellDef="let employee">
+              {{ formatSSN(employee.ssn) }}
+            </td>
+          </ng-container>
+
+          <!-- Work Authorization Column -->
+          <ng-container matColumnDef="workAuthTitle">
+            <th mat-header-cell *matHeaderCellDef>Work Authorization</th>
+            <td mat-cell *matCellDef="let employee">
+              <mat-chip-listbox>
+                <mat-chip-option 
+                  [color]="employee.workAuthTitle === 'Not specified' ? 'warn' : 'primary'"
+                  selected>
+                  {{ employee.workAuthTitle }}
+                </mat-chip-option>
+              </mat-chip-listbox>
+            </td>
+          </ng-container>
+
+          <!-- Phone Column -->
+          <ng-container matColumnDef="phone">
+            <th mat-header-cell *matHeaderCellDef>Phone Number</th>
+            <td mat-cell *matCellDef="let employee">
+              <div class="phone-cell">
+                <mat-icon class="contact-icon">phone</mat-icon>
+                {{ formatPhone(employee.phone) }}
+              </div>
+            </td>
+          </ng-container>
+
+          <!-- Email Column -->
+          <ng-container matColumnDef="email">
+            <th mat-header-cell *matHeaderCellDef>Email</th>
+            <td mat-cell *matCellDef="let employee">
+              <div class="email-cell">
+                <mat-icon class="contact-icon">email</mat-icon>
+                <a [href]="'mailto:' + employee.email" class="email-link">
+                  {{ employee.email }}
+                </a>
+              </div>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="employee-row"></tr>
+        </table>
+
+        <!-- No Results Message -->
+        <div *ngIf="filteredEmployees.length === 0 && !loading" class="no-results">
+          <mat-icon class="no-results-icon">search_off</mat-icon>
+          <h3>No employees found</h3>
+          <p *ngIf="searchControl.value">
+            Try adjusting your search terms or 
+            <button mat-button color="primary" (click)="searchControl.setValue('')">
+              clear the search
+            </button>
+          </p>
+          <p *ngIf="!searchControl.value">
+            No employees are currently registered in the system.
+          </p>
+        </div>
+      </div>
     </mat-card-content>
   </mat-card>
 </div>
