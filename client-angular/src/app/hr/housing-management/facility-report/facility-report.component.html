@@ -1,0 +1,162 @@
+<mat-expansion-panel class="report-panel">
+  <mat-expansion-panel-header>
+    <mat-panel-title>
+      <div class="report-title">
+        <span>{{ report.title }}</span>
+        <mat-chip [color]="getStatusColor(report.status)" selected>
+          {{ report.status }}
+        </mat-chip>
+      </div>
+    </mat-panel-title>
+    <mat-panel-description>
+      <div class="report-meta">
+        <span>{{ report.category }}</span>
+        <mat-chip [color]="getPriorityColor(report.priority)" size="small">
+          {{ report.priority }}
+        </mat-chip>
+        <span>{{ formatDate(report.createdAt) }}</span>
+      </div>
+    </mat-panel-description>
+  </mat-expansion-panel-header>
+
+  <!-- Report Details -->
+  <div class="report-details">
+    <div class="report-info">
+      <h4>Description</h4>
+      <p>{{ report.description }}</p>
+
+      <div class="report-metadata">
+        <div class="meta-item">
+          <strong>Reported by:</strong>
+          {{ report.reportedBy.firstName }} {{ report.reportedBy.lastName }}
+        </div>
+        <div class="meta-item">
+          <strong>Email:</strong>
+          {{ report.reportedBy.email }}
+        </div>
+        <div class="meta-item">
+          <strong>Created:</strong>
+          {{ formatDate(report.createdAt) }}
+        </div>
+        <div class="meta-item">
+          <strong>Status:</strong>
+          <mat-form-field appearance="outline" class="status-select">
+            <mat-select
+              [value]="report.status"
+              (selectionChange)="updateStatus($event.value)"
+            >
+              <mat-option value="Open">Open</mat-option>
+              <mat-option value="In Progress">In Progress</mat-option>
+              <mat-option value="Resolved">Resolved</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+    </div>
+
+    <mat-divider></mat-divider>
+
+    <!-- Comments Section -->
+    <div class="comments-section">
+      <h4>HR Comments ({{ report.comments.length }})</h4>
+
+      <!-- Add Comment -->
+      <div class="add-comment">
+        <mat-form-field appearance="outline" class="comment-field">
+          <mat-label>Add HR comment...</mat-label>
+          <textarea
+            matInput
+            [(ngModel)]="newComment"
+            placeholder="Enter your HR response here"
+            rows="3"
+          >
+          </textarea>
+        </mat-form-field>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="addComment()"
+          [disabled]="!newComment.trim() || addingComment"
+        >
+          <mat-icon>send</mat-icon>
+          {{ addingComment ? "Adding..." : "Add Comment" }}
+        </button>
+      </div>
+
+      <!-- Comments List -->
+      <div class="comments-list" *ngIf="report.comments.length > 0">
+        <div
+          class="comment-item"
+          *ngFor="let comment of report.comments; trackBy: trackByCommentId"
+        >
+          <!-- Edit Mode -->
+          <div *ngIf="editingCommentId === comment._id" class="edit-comment">
+            <mat-form-field appearance="outline" class="edit-comment-field">
+              <mat-label>Edit comment</mat-label>
+              <textarea matInput [(ngModel)]="editCommentText" rows="3">
+              </textarea>
+            </mat-form-field>
+            <div class="edit-actions">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="updateComment(comment._id)"
+                [disabled]="!editCommentText.trim() || updatingComment"
+              >
+                <mat-icon>save</mat-icon>
+                {{ updatingComment ? "Saving..." : "Save" }}
+              </button>
+              <button mat-button (click)="cancelEditComment()">
+                <mat-icon>cancel</mat-icon>
+                Cancel
+              </button>
+            </div>
+          </div>
+
+          <!-- Display Mode -->
+          <div *ngIf="editingCommentId !== comment._id" class="display-comment">
+            <div class="comment-header">
+              <div class="comment-author">
+                <mat-icon>person</mat-icon>
+                <strong
+                  >{{ comment.commentedBy.firstName }}
+                  {{ comment.commentedBy.lastName }}</strong
+                >
+                <span class="comment-role"
+                  >(HR - {{ comment.commentedBy.username }})</span
+                >
+              </div>
+              <div class="comment-actions">
+                <div class="comment-date">
+                  {{ formatDate(comment.createdAt) }}
+                  <span *ngIf="comment.isEdited" class="edited-indicator"
+                    >(edited)</span
+                  >
+                </div>
+                <button
+                  mat-icon-button
+                  *ngIf="canEditComment(comment)"
+                  (click)="startEditComment(comment)"
+                  matTooltip="Edit comment"
+                >
+                  <mat-icon>edit</mat-icon>
+                </button>
+              </div>
+            </div>
+            <div class="comment-body">
+              {{ comment.comment }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="no-comments" *ngIf="report.comments.length === 0">
+        <mat-icon>comment</mat-icon>
+        <p>
+          No HR comments yet. Add the first comment to communicate with the
+          employee.
+        </p>
+      </div>
+    </div>
+  </div>
+</mat-expansion-panel>

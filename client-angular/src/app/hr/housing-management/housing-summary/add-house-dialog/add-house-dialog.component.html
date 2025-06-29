@@ -1,0 +1,199 @@
+<h2 mat-dialog-title>
+  <mat-icon>add_home</mat-icon>
+  Add New House
+</h2>
+
+<form [formGroup]="houseForm" (ngSubmit)="onSubmit()">
+  <mat-dialog-content class="dialog-content">
+    <!-- Address Section -->
+    <div class="form-section">
+      <h3>
+        <mat-icon>location_on</mat-icon>
+        Address Information
+      </h3>
+
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>House Address</mat-label>
+        <input
+          matInput
+          formControlName="address"
+          placeholder="Enter complete address"
+          autocomplete="street-address"
+        />
+        <mat-error *ngIf="hasFieldError('address')">
+          {{ getFieldError("address") }}
+        </mat-error>
+      </mat-form-field>
+    </div>
+
+    <!-- Landlord Section -->
+    <div class="form-section" formGroupName="landlord">
+      <h3>
+        <mat-icon>person</mat-icon>
+        Landlord Information
+      </h3>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Full Name</mat-label>
+          <input
+            matInput
+            formControlName="fullName"
+            placeholder="Enter landlord's full name"
+            autocomplete="name"
+          />
+          <mat-error *ngIf="hasFieldError('landlord.fullName')">
+            {{ getFieldError("landlord.fullName") }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-row">
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Phone Number</mat-label>
+          <input
+            matInput
+            formControlName="phone"
+            placeholder="(555) 123-4567"
+            autocomplete="tel"
+          />
+          <mat-error *ngIf="hasFieldError('landlord.phone')">
+            {{ getFieldError("landlord.phone") }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="half-width">
+          <mat-label>Email Address</mat-label>
+          <input
+            matInput
+            formControlName="email"
+            placeholder="landlord@example.com"
+            autocomplete="email"
+          />
+          <mat-error *ngIf="hasFieldError('landlord.email')">
+            {{ getFieldError("landlord.email") }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Facility Section -->
+    <div class="form-section" formGroupName="facility">
+      <h3>
+        <mat-icon>weekend</mat-icon>
+        Facility Information
+      </h3>
+
+      <div class="facility-grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Beds</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="beds"
+            min="1"
+            max="20"
+          />
+          <mat-icon matSuffix>bed</mat-icon>
+          <mat-error *ngIf="hasFieldError('facility.beds')">
+            {{ getFieldError("facility.beds") }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Mattresses</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="mattresses"
+            min="0"
+            max="20"
+          />
+          <mat-icon matSuffix>airline_seat_individual_suite</mat-icon>
+          <mat-error *ngIf="hasFieldError('facility.mattresses')">
+            {{ getFieldError("facility.mattresses") }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Tables</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="tables"
+            min="0"
+            max="10"
+          />
+          <mat-icon matSuffix>table_restaurant</mat-icon>
+          <mat-error *ngIf="hasFieldError('facility.tables')">
+            {{ getFieldError("facility.tables") }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Chairs</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="chairs"
+            min="0"
+            max="50"
+          />
+          <mat-icon matSuffix>chair</mat-icon>
+          <mat-error *ngIf="hasFieldError('facility.chairs')">
+            {{ getFieldError("facility.chairs") }}
+          </mat-error>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- Summary Preview -->
+    <div class="form-section" *ngIf="houseForm.valid">
+      <h3>
+        <mat-icon>preview</mat-icon>
+        Preview
+      </h3>
+
+      <mat-card class="preview-card">
+        <mat-card-content>
+          <div class="preview-item">
+            <strong>Address:</strong> {{ houseForm.get("address")?.value }}
+          </div>
+          <div class="preview-item">
+            <strong>Landlord:</strong>
+            {{ houseForm.get("landlord.fullName")?.value }}
+          </div>
+          <div class="preview-item">
+            <strong>Contact:</strong>
+            {{ houseForm.get("landlord.phone")?.value }} |
+            {{ houseForm.get("landlord.email")?.value }}
+          </div>
+          <div class="preview-item">
+            <strong>Capacity:</strong>
+            {{ houseForm.get("facility.beds")?.value }} beds,
+            {{ houseForm.get("facility.mattresses")?.value }} mattresses,
+            {{ houseForm.get("facility.tables")?.value }} tables,
+            {{ houseForm.get("facility.chairs")?.value }} chairs
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <button mat-button type="button" (click)="onCancel()" [disabled]="loading">
+      Cancel
+    </button>
+
+    <button
+      mat-raised-button
+      color="primary"
+      type="submit"
+      [disabled]="houseForm.invalid || loading"
+    >
+      <mat-icon *ngIf="!loading">add</mat-icon>
+      <mat-spinner *ngIf="loading" diameter="20"></mat-spinner>
+      {{ loading ? "Adding..." : "Add House" }}
+    </button>
+  </mat-dialog-actions>
+</form>

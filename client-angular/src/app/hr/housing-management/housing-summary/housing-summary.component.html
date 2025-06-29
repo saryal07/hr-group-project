@@ -1,0 +1,270 @@
+<div class="housing-summary-container">
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="title-section">
+      <h2>
+        <mat-icon>house</mat-icon>
+        Housing Overview
+      </h2>
+      <p>Manage employee housing assignments and facilities</p>
+    </div>
+
+    <div class="action-section">
+      <button mat-raised-button color="primary" (click)="onAddHouse()">
+        <mat-icon>add</mat-icon>
+        Add New House
+      </button>
+      <button mat-icon-button (click)="refreshHouses()" [disabled]="loading">
+        <mat-icon>refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Statistics Cards -->
+  <div class="stats-section">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="primary">home</mat-icon>
+          <div class="stat-text">
+            <h3>{{ totalHouses }}</h3>
+            <p>Total Houses</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="primary">people</mat-icon>
+          <div class="stat-text">
+            <h3>{{ totalEmployees }}</h3>
+            <p>Total Residents</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon color="primary">bed</mat-icon>
+          <div class="stat-text">
+            <h3>{{ totalCapacity }}</h3>
+            <p>Total Beds</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <mat-icon [color]="occupancyRate > 80 ? 'warn' : 'primary'"
+            >trending_up</mat-icon
+          >
+          <div class="stat-text">
+            <h3>{{ occupancyRate | number : "1.1-1" }}%</h3>
+            <p>Occupancy Rate</p>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Search Section -->
+  <mat-card class="search-section">
+    <mat-card-content>
+      <div class="search-container">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>Search houses by address or landlord</mat-label>
+          <input
+            matInput
+            [(ngModel)]="searchTerm"
+            (input)="onSearchInput()"
+            (keyup.enter)="onSearch()"
+            placeholder="Enter address, landlord name, or email"
+          />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onSearch()"
+          [disabled]="!searchTerm.trim()"
+        >
+          Search
+        </button>
+
+        <button mat-button (click)="clearSearch()" *ngIf="searchTerm">
+          Clear
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Loading Spinner -->
+  <div class="loading-container" *ngIf="loading">
+    <mat-spinner></mat-spinner>
+    <p>Loading houses...</p>
+  </div>
+
+  <!-- Error Message -->
+  <mat-card class="error-card" *ngIf="error">
+    <mat-card-content>
+      <div class="error-content">
+        <mat-icon color="warn">error</mat-icon>
+        <div>
+          <p>{{ error }}</p>
+          <button mat-button color="primary" (click)="loadHouses()">
+            Try Again
+          </button>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Houses Grid -->
+  <div class="houses-grid" *ngIf="!loading && !error">
+    <!-- Shows filtered results -->
+    <mat-card
+      class="house-card"
+      *ngFor="let house of filteredHouses$ | async; trackBy: trackByHouseId"
+      (click)="onHouseClick(house)"
+    >
+      <!-- Header with just address -->
+      <mat-card-header>
+        <div mat-card-avatar class="house-avatar">
+          <mat-icon>house</mat-icon>
+        </div>
+        <mat-card-title>{{ house.address }}</mat-card-title>
+        <!-- Delete button -->
+        <div class="card-actions">
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="onDeleteHouse(house, $event)"
+            matTooltip="Delete House"
+            *ngIf="house.employees.length === 0"
+          >
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Occupancy status at top of content -->
+        <div class="occupancy-status">
+          <mat-chip [color]="getOccupancyColor(house)" class="occupancy-chip">
+            <mat-icon>bed</mat-icon>
+            {{ getOccupancyText(house) }}
+          </mat-chip>
+          <span class="occupancy-text">
+            {{
+              house.employees.length === 0
+                ? "Available"
+                : house.employees.length >= house.facility.beds
+                ? "Full"
+                : "Partially Occupied"
+            }}
+          </span>
+        </div>
+
+        <mat-divider class="occupancy-divider"></mat-divider>
+
+        <!-- Landlord Information -->
+        <div class="landlord-section">
+          <h4>
+            <mat-icon>person</mat-icon>
+            Landlord
+          </h4>
+          <p class="landlord-name">{{ house.landlord.fullName }}</p>
+          <div class="contact-row">
+            <span class="contact-item">
+              <mat-icon>phone</mat-icon>
+              {{ house.landlord.phone }}
+            </span>
+            <span class="contact-item">
+              <mat-icon>email</mat-icon>
+              {{ house.landlord.email }}
+            </span>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <!-- Facility Information with LABELS -->
+        <div class="facility-section">
+          <h4>
+            <mat-icon>weekend</mat-icon>
+            Facilities
+          </h4>
+          <div class="facility-grid">
+            <div class="facility-item">
+              <mat-icon>bed</mat-icon>
+              <span>{{ house.facility.beds }} beds</span>
+            </div>
+            <div class="facility-item">
+              <mat-icon>table_restaurant</mat-icon>
+              <span>{{ house.facility.tables }} tables</span>
+            </div>
+            <div class="facility-item">
+              <mat-icon>chair</mat-icon>
+              <span>{{ house.facility.chairs }} chairs</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button color="primary">
+          <mat-icon>visibility</mat-icon>
+          View Details
+        </button>
+      </mat-card-actions>
+    </mat-card>
+  </div>
+
+  <!-- No Results Message -->
+  <mat-card
+    class="no-results-state"
+    *ngIf="
+      !loading &&
+      !error &&
+      (filteredHouses$ | async)?.length === 0 &&
+      searchTerm.trim()
+    "
+  >
+    <mat-card-content>
+      <div class="no-results-content">
+        <mat-icon>search_off</mat-icon>
+        <h3>No Houses Found</h3>
+        <p>No houses match your search for "{{ searchTerm }}"</p>
+        <button mat-button color="primary" (click)="clearSearch()">
+          <mat-icon>clear</mat-icon>
+          Clear Search
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Empty State -->
+  <mat-card
+    class="empty-state"
+    *ngIf="!loading && !error && (houses$ | async)?.length === 0"
+  >
+    <mat-card-content>
+      <div class="empty-content">
+        <mat-icon>home_work</mat-icon>
+        <h3>No Houses Found</h3>
+        <p>Start by adding your first house to the system.</p>
+        <button mat-raised-button color="primary" (click)="onAddHouse()">
+          <mat-icon>add</mat-icon>
+          Add First House
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

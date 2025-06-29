@@ -1,23 +1,22 @@
-<div class="page-container">
-  <h2>Housing Management</h2>
-  <p>Manage employee housing assignments and facility reports.</p>
-  
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Housing & Facilities</mat-card-title>
-      <mat-card-subtitle>Manage employee housing and facility maintenance</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>This section will contain housing management functionality.</p>
-      <p>Features to be implemented:</p>
-      <ul>
-        <li>View and manage housing assignments</li>
-        <li>Add new housing properties</li>
-        <li>Assign employees to housing</li>
-        <li>Review facility reports</li>
-        <li>Track housing capacity and availability</li>
-        <li>Manage landlord information</li>
-      </ul>
-    </mat-card-content>
-  </mat-card>
+<div class="housing-management-container">
+  <!-- Summary View -->
+  <app-housing-summary
+    *ngIf="viewMode === 'summary'"
+    (houseSelected)="onHouseSelected($event)"
+  >
+  </app-housing-summary>
+
+  <!-- Details View -->
+  <div *ngIf="viewMode === 'details' && selectedHouse" class="details-view">
+    <!-- Back Button -->
+    <div class="back-section">
+      <button mat-button color="primary" (click)="onBackToSummary()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Housing List
+      </button>
+    </div>
+
+    <!-- ACTUAL House Details Component -->
+    <app-housing-details [house]="selectedHouse"></app-housing-details>
+  </div>
 </div>

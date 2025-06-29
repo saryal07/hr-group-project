@@ -1,0 +1,144 @@
+.dialog-content {
+  width: 600px;
+  max-width: 90vw;
+  max-height: 80vh;
+  padding: 0 24px;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  color: #1976d2;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+.form-section h3 mat-icon {
+  font-size: 1.2rem;
+}
+
+/* Form Layout */
+.form-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.half-width {
+  flex: 1;
+}
+
+/* Facility Grid */
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+/* Form Fields */
+.mat-mdc-form-field {
+  margin-bottom: 16px;
+}
+
+.mat-mdc-form-field.full-width {
+  width: 100%;
+}
+
+/* Preview Section */
+.preview-card {
+  background-color: #f8f9fa;
+  border: 1px solid #e9ecef;
+}
+
+.preview-item {
+  margin-bottom: 8px;
+  padding: 4px 0;
+  color: #333;
+}
+
+.preview-item:last-child {
+  margin-bottom: 0;
+}
+
+.preview-item strong {
+  color: #1976d2;
+  margin-right: 8px;
+}
+
+/* Dialog Actions */
+.dialog-actions {
+  padding: 16px 24px;
+  gap: 8px;
+}
+
+.dialog-actions button {
+  min-width: 100px;
+}
+
+/* Loading State */
+button mat-spinner {
+  margin-right: 8px;
+}
+
+/* Error States */
+.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-text-field-wrapper {
+  border-color: #f44336;
+}
+
+/* Icons in Form Fields */
+.mat-mdc-form-field .mat-icon[matSuffix] {
+  color: #666;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .dialog-content {
+    width: 100%;
+    padding: 0 16px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .half-width {
+    width: 100%;
+  }
+
+  .facility-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .dialog-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .dialog-actions button {
+    width: 100%;
+    margin-bottom: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .form-section h3 {
+    font-size: 1rem;
+  }
+
+  .preview-item {
+    font-size: 0.9rem;
+  }
+}
