@@ -1,0 +1,299 @@
+<div class="profile-container" *ngIf="!loading && !error && employee">
+  <!-- Header -->
+  <div class="profile-header">
+    <div class="header-content">
+      <div class="employee-info">
+        <h1>{{ employee.personalInfo.firstName }} {{ employee.personalInfo.lastName }}</h1>
+        <p class="employee-subtitle" *ngIf="employee.personalInfo.preferredName && employee.personalInfo.preferredName !== employee.personalInfo.firstName">
+          Preferred: {{ employee.personalInfo.preferredName }}
+        </p>
+        <div class="status-chip">
+          <mat-chip-listbox>
+            <mat-chip-option [color]="getStatusColor(employee.onboarding.status)" selected>
+              {{ employee.onboarding.status }}
+            </mat-chip-option>
+          </mat-chip-listbox>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="closeTab()">
+          <mat-icon>close</mat-icon>
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personal Information -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>person</mat-icon>
+      <mat-card-title>Personal Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>First Name</label>
+          <span>{{ employee.personalInfo.firstName || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Middle Name</label>
+          <span>{{ employee.personalInfo.middleName || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Last Name</label>
+          <span>{{ employee.personalInfo.lastName || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Preferred Name</label>
+          <span>{{ employee.personalInfo.preferredName || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Date of Birth</label>
+          <span>{{ formatDate(employee.personalInfo.dob) }}</span>
+        </div>
+        <div class="info-item">
+          <label>Gender</label>
+          <span>{{ employee.personalInfo.gender || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>SSN</label>
+          <span>{{ employee.personalInfo.ssn || 'Not provided' }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Contact Information -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>contact_phone</mat-icon>
+      <mat-card-title>Contact Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Email</label>
+          <span>
+            <a [href]="'mailto:' + employee.personalInfo.email" class="email-link">
+              {{ employee.personalInfo.email }}
+            </a>
+          </span>
+        </div>
+        <div class="info-item">
+          <label>Cell Phone</label>
+          <span>{{ formatPhone(employee.personalInfo.cellPhone) }}</span>
+        </div>
+        <div class="info-item">
+          <label>Work Phone</label>
+          <span>{{ formatPhone(employee.personalInfo.workPhone) }}</span>
+        </div>
+        <div class="info-item full-width">
+          <label>Address</label>
+          <span>{{ getFullAddress(employee.address) }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Work Authorization -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>work</mat-icon>
+      <mat-card-title>Work Authorization</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Citizenship Status</label>
+          <span>{{ employee.citizenship.isCitizen ? 'U.S. Citizen' : 'Non-Citizen' }}</span>
+        </div>
+        <div class="info-item" *ngIf="!employee.citizenship.isCitizen">
+          <label>Citizenship Type</label>
+          <span>{{ employee.citizenship.citizenshipStatus || 'Not provided' }}</span>
+        </div>
+        <div class="info-item" *ngIf="employee.citizenship.visa?.type">
+          <label>Visa Type</label>
+          <span>{{ employee.citizenship.visa.type }}</span>
+        </div>
+        <div class="info-item" *ngIf="employee.citizenship.visa?.title">
+          <label>Work Authorization Title</label>
+          <span>{{ employee.citizenship.visa.title }}</span>
+        </div>
+        <div class="info-item" *ngIf="employee.citizenship.visa?.startDate">
+          <label>Start Date</label>
+          <span>{{ formatDate(employee.citizenship.visa.startDate) }}</span>
+        </div>
+        <div class="info-item" *ngIf="employee.citizenship.visa?.endDate">
+          <label>End Date</label>
+          <span>{{ formatDate(employee.citizenship.visa.endDate) }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Driver's License -->
+  <mat-card class="info-card" *ngIf="employee.driversLicense.hasLicense">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>drive_eta</mat-icon>
+      <mat-card-title>Driver's License</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>License Number</label>
+          <span>{{ employee.driversLicense.number || 'Not provided' }}</span>
+        </div>
+        <div class="info-item">
+          <label>Expiration Date</label>
+          <span>{{ formatDate(employee.driversLicense.expirationDate) }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Reference -->
+  <mat-card class="info-card" *ngIf="employee.reference && (employee.reference.firstName || employee.reference.lastName)">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>person_pin</mat-icon>
+      <mat-card-title>Reference</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Name</label>
+          <span>{{ employee.reference.firstName }} {{ employee.reference.middleName }} {{ employee.reference.lastName }}</span>
+        </div>
+        <div class="info-item">
+          <label>Phone</label>
+          <span>{{ formatPhone(employee.reference.phone) }}</span>
+        </div>
+        <div class="info-item">
+          <label>Email</label>
+          <span>
+            <a [href]="'mailto:' + employee.reference.email" class="email-link" *ngIf="employee.reference.email">
+              {{ employee.reference.email }}
+            </a>
+            <span *ngIf="!employee.reference.email">Not provided</span>
+          </span>
+        </div>
+        <div class="info-item">
+          <label>Relationship</label>
+          <span>{{ employee.reference.relationship || 'Not provided' }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Emergency Contacts -->
+  <mat-card class="info-card" *ngIf="employee.emergencyContacts && employee.emergencyContacts.length > 0">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>emergency</mat-icon>
+      <mat-card-title>Emergency Contacts</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="emergency-contacts">
+        <div class="emergency-contact" *ngFor="let contact of employee.emergencyContacts; let i = index">
+          <h4>Contact {{ i + 1 }}</h4>
+          <div class="info-grid">
+            <div class="info-item">
+              <label>Name</label>
+              <span>{{ contact.firstName }} {{ contact.middleName }} {{ contact.lastName }}</span>
+            </div>
+            <div class="info-item">
+              <label>Phone</label>
+              <span>{{ formatPhone(contact.phone) }}</span>
+            </div>
+            <div class="info-item">
+              <label>Email</label>
+              <span>
+                <a [href]="'mailto:' + contact.email" class="email-link" *ngIf="contact.email">
+                  {{ contact.email }}
+                </a>
+                <span *ngIf="!contact.email">Not provided</span>
+              </span>
+            </div>
+            <div class="info-item">
+              <label>Relationship</label>
+              <span>{{ contact.relationship || 'Not provided' }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Onboarding Status -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>assignment_turned_in</mat-icon>
+      <mat-card-title>Onboarding Status</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Status</label>
+          <span>
+            <mat-chip-listbox>
+              <mat-chip-option [color]="getStatusColor(employee.onboarding.status)" selected>
+                {{ employee.onboarding.status }}
+              </mat-chip-option>
+            </mat-chip-listbox>
+          </span>
+        </div>
+        <div class="info-item full-width" *ngIf="employee.onboarding.hrFeedback">
+          <label>HR Feedback</label>
+          <span>{{ employee.onboarding.hrFeedback }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Account Information -->
+  <mat-card class="info-card">
+    <mat-card-header>
+      <mat-icon mat-card-avatar>account_circle</mat-icon>
+      <mat-card-title>Account Information</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Username</label>
+          <span>{{ employee.account.username }}</span>
+        </div>
+        <div class="info-item">
+          <label>Role</label>
+          <span>{{ employee.account.role | titlecase }}</span>
+        </div>
+        <div class="info-item">
+          <label>Created</label>
+          <span>{{ formatDate(employee.account.createdAt) }}</span>
+        </div>
+        <div class="info-item">
+          <label>Last Updated</label>
+          <span>{{ formatDate(employee.account.updatedAt) }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>
+
+<!-- Loading -->
+<div *ngIf="loading" class="loading-container">
+  <mat-spinner diameter="40"></mat-spinner>
+  <p>Loading employee profile...</p>
+</div>
+
+<!-- Error -->
+<mat-card *ngIf="error && !loading" class="error-card">
+  <mat-card-content>
+    <div class="error-content">
+      <mat-icon class="error-icon">error</mat-icon>
+      <span>{{ error }}</span>
+      <button mat-button color="primary" (click)="loadEmployeeProfile()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+  </mat-card-content>
+</mat-card> 
