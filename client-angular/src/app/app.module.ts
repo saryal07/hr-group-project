@@ -26,6 +26,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSortModule } from '@angular/material/sort';
+import { MatTabsModule } from '@angular/material/tabs';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -95,6 +96,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     MatTableModule,
     MatMenuModule,
     MatSortModule,
+    MatTabsModule,
   ],
   providers: [
     {

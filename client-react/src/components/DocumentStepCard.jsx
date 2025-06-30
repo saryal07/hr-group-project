@@ -153,6 +153,25 @@ const DocumentStepCard = ({ stepData, onStatusUpdate }) => {
             </MUI.Button>
           )}
 
+          {/* Re-upload Button - Show specifically for rejected documents */}
+          {stepData.status === 'rejected' && (
+            <MUI.Button
+              variant="contained"
+              color="error"
+              startIcon={<CloudUpload />}
+              component="label"
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : 'Re-upload Document'}
+              <input
+                type="file"
+                hidden
+                accept=".pdf,.png,.jpg,.jpeg"
+                onChange={handleFileUpload}
+              />
+            </MUI.Button>
+          )}
+
           {/* Download Button - Show if document exists */}
           {stepData.document && (
             <>

@@ -85,6 +85,11 @@ export class DocumentPreviewDialogComponent implements OnInit {
 
   showRejectFormHandler(): void {
     this.showRejectForm = true;
+    // Reset the form to ensure it's in a clean state
+    this.rejectForm.reset();
+    // Mark the form as pristine and untouched
+    this.rejectForm.markAsPristine();
+    this.rejectForm.markAsUntouched();
   }
 
   rejectDocument(): void {
@@ -121,6 +126,8 @@ export class DocumentPreviewDialogComponent implements OnInit {
   cancelReject(): void {
     this.showRejectForm = false;
     this.rejectForm.reset();
+    this.rejectForm.markAsPristine();
+    this.rejectForm.markAsUntouched();
   }
 
   close(): void {

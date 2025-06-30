@@ -59,6 +59,9 @@ const uploadDocument = asyncHandler(async (req, res) => {
     documentType: documentType
   });
 
+  // Check if this is a re-upload of a rejected document
+  const isReuploadingRejected = existingDocument && existingDocument.status === 'rejected';
+
    // Delete existing document if present
   if (existingDocument) {
     console.log(`🔁 Replacing existing document: ${existingDocument._id}`);
@@ -70,11 +73,13 @@ const uploadDocument = asyncHandler(async (req, res) => {
   if (requiresWorkflow(documentType)) {
     const stepOrder = getStepOrder(documentType);
     
-    // Check if previous step is approved
-    const previousStepApproved = await checkPreviousStepApproved(req.user.id, stepOrder);
-    if (!previousStepApproved) {
-      res.status(400);
-      throw new Error(`Previous step must be approved before uploading ${documentType}`);
+    // Only check previous step if not re-uploading a rejected document
+    if (!isReuploadingRejected) {
+      const previousStepApproved = await checkPreviousStepApproved(req.user.id, stepOrder);
+      if (!previousStepApproved) {
+        res.status(400);
+        throw new Error(`Previous step must be approved before uploading ${documentType}`);
+      }
     }
   }
 
@@ -194,7 +199,7 @@ const getWorkflowStatus = asyncHandler(async (req, res) => {
           }
           break;
         case 'rejected':
-          message = document.hrFeedback || 'Document was rejected by HR';
+          message = `${document.hrFeedback || 'Document was rejected by HR'}. Please upload a corrected version.`;
           break;
       }
 
@@ -216,7 +221,7 @@ const getWorkflowStatus = asyncHandler(async (req, res) => {
           downloadUrl
         },
         message,
-        canUpload: false // Already uploaded
+        canUpload: document.status === 'rejected' // Allow re-upload for rejected documents
       };
     })
   );
@@ -303,4 +308,4 @@ module.exports = {
   getWorkflowStatus,
   getDocument,
   deleteDocument
-}; 
+};
