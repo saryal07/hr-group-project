@@ -7,7 +7,6 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 // Angular Material Modules
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatTabsModule } from '@angular/material/tabs';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
@@ -19,7 +18,6 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatChipsModule } from '@angular/material/chips';
@@ -59,7 +57,7 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     VisaStatusManagementComponent,
     HiringManagementComponent,
     HousingManagementComponent,
-    HrApplicationViewComponent
+    HrApplicationViewComponent,
     HousingSummaryComponent,
     HousingDetailsComponent,
     FacilityReportComponent,
@@ -74,7 +72,6 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     FormsModule,
     MatToolbarModule,
     MatSidenavModule,
-    MatTabsModule,
     MatButtonModule,
     MatIconModule,
     MatListModule,
