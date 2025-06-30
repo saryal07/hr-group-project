@@ -1,0 +1,468 @@
+<div class="housing-details-container">
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="!house">
+    <mat-spinner></mat-spinner>
+    <p>Loading house details...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="house" class="details-content">
+    <!-- House Overview Card -->
+    <mat-card class="overview-card">
+      <mat-card-header>
+        <div mat-card-avatar class="house-avatar">
+          <mat-icon>house</mat-icon>
+        </div>
+        <mat-card-title>{{ house.address }}</mat-card-title>
+        <mat-card-subtitle>House Details & Management</mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="stat-item">
+            <mat-icon color="primary">people</mat-icon>
+            <div class="stat-text">
+              <span class="stat-value">{{ house.employees.length }}</span>
+              <span class="stat-label">Residents</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon color="primary">bed</mat-icon>
+            <div class="stat-text">
+              <span class="stat-value">{{ house.facility.beds }}</span>
+              <span class="stat-label">Beds</span>
+            </div>
+          </div>
+          <div class="stat-item">
+            <mat-icon [color]="getOccupancyColor()">trending_up</mat-icon>
+            <div class="stat-text">
+              <span class="stat-value"
+                >{{ getOccupancyPercentage() | number : "1.0-0" }}%</span
+              >
+              <span class="stat-label">Occupancy</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Occupancy Bar -->
+        <div class="occupancy-section">
+          <h4>Occupancy Status</h4>
+          <mat-progress-bar
+            mode="determinate"
+            [value]="getOccupancyPercentage()"
+            [color]="getOccupancyColor()"
+          >
+          </mat-progress-bar>
+          <p class="occupancy-text">
+            {{ house.employees.length }} of {{ house.facility.beds }} beds
+            occupied
+          </p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Tabs for Different Sections -->
+    <mat-card class="tabs-card">
+      <mat-tab-group>
+        <!-- Facility Information Tab -->
+        <mat-tab label="Facility Information">
+          <div class="tab-content">
+            <!-- Landlord Information -->
+            <div class="section">
+              <h3>
+                <mat-icon>person</mat-icon>
+                Landlord Information
+              </h3>
+              <div class="info-grid">
+                <div class="info-item">
+                  <mat-icon>account_circle</mat-icon>
+                  <div>
+                    <strong>Name:</strong>
+                    <span>{{ house.landlord.fullName }}</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>phone</mat-icon>
+                  <div>
+                    <strong>Phone:</strong>
+                    <span>{{ house.landlord.phone }}</span>
+                  </div>
+                </div>
+                <div class="info-item">
+                  <mat-icon>email</mat-icon>
+                  <div>
+                    <strong>Email:</strong>
+                    <span>{{ house.landlord.email }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <mat-divider></mat-divider>
+
+            <!-- Facility Details -->
+            <div class="section">
+              <h3>
+                <mat-icon>weekend</mat-icon>
+                Facility Details
+              </h3>
+              <div class="facility-grid">
+                <mat-card class="facility-item">
+                  <mat-card-content>
+                    <div class="facility-stat">
+                      <mat-icon>bed</mat-icon>
+                      <div>
+                        <span class="number">{{ house.facility.beds }}</span>
+                        <span class="label">Beds</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="facility-item">
+                  <mat-card-content>
+                    <div class="facility-stat">
+                      <mat-icon>airline_seat_individual_suite</mat-icon>
+                      <div>
+                        <span class="number">{{
+                          house.facility.mattresses
+                        }}</span>
+                        <span class="label">Mattresses</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="facility-item">
+                  <mat-card-content>
+                    <div class="facility-stat">
+                      <mat-icon>table_restaurant</mat-icon>
+                      <div>
+                        <span class="number">{{ house.facility.tables }}</span>
+                        <span class="label">Tables</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+
+                <mat-card class="facility-item">
+                  <mat-card-content>
+                    <div class="facility-stat">
+                      <mat-icon>chair</mat-icon>
+                      <div>
+                        <span class="number">{{ house.facility.chairs }}</span>
+                        <span class="label">Chairs</span>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </mat-card>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Resident Employees Tab -->
+        <mat-tab label="Resident Employees">
+          <div class="tab-content">
+            <div class="section">
+              <h3>
+                <mat-icon>people</mat-icon>
+                Current Residents ({{ house.employees.length }})
+              </h3>
+
+              <div
+                class="employees-grid"
+                *ngIf="house.employees.length > 0; else noEmployees"
+              >
+                <mat-card
+                  class="employee-card"
+                  *ngFor="
+                    let employee of house.employees;
+                    trackBy: trackByEmployeeId
+                  "
+                  (click)="viewEmployeeProfile(employee._id)"
+                >
+                  <mat-card-header>
+                    <div mat-card-avatar class="employee-avatar">
+                      <mat-icon>person</mat-icon>
+                    </div>
+                    <mat-card-title>
+                      {{ employee.preferredName || employee.firstName }}
+                      {{ employee.lastName }}
+                    </mat-card-title>
+                    <mat-card-subtitle>
+                      {{ employee.email }}
+                    </mat-card-subtitle>
+                  </mat-card-header>
+
+                  <mat-card-content>
+                    <div class="employee-info">
+                      <div class="info-row" *ngIf="employee.cellPhone">
+                        <mat-icon>phone</mat-icon>
+                        <span>{{ employee.cellPhone }}</span>
+                      </div>
+                      <div class="info-row" *ngIf="employee.car">
+                        <mat-icon>directions_car</mat-icon>
+                        <span
+                          >{{ employee.car.make }} {{ employee.car.model }} ({{
+                            employee.car.color
+                          }})</span
+                        >
+                      </div>
+                    </div>
+                  </mat-card-content>
+
+                  <mat-card-actions>
+                    <button mat-button color="primary">
+                      <mat-icon>visibility</mat-icon>
+                      View Profile
+                    </button>
+                  </mat-card-actions>
+                </mat-card>
+              </div>
+
+              <ng-template #noEmployees>
+                <div class="empty-state">
+                  <mat-icon>people_outline</mat-icon>
+                  <h4>No Residents</h4>
+                  <p>This house currently has no assigned residents.</p>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Facility Reports Tab -->
+        <mat-tab label="Facility Reports">
+          <div class="tab-content">
+            <div class="section">
+              <div class="section-header">
+                <h3>
+                  <mat-icon>report_problem</mat-icon>
+                  Facility Reports
+                </h3>
+                <button
+                  mat-raised-button
+                  color="primary"
+                  (click)="loadFacilityReports()"
+                >
+                  <mat-icon>refresh</mat-icon>
+                  Refresh
+                </button>
+              </div>
+
+              <!-- Loading State -->
+              <div class="loading-container" *ngIf="reportsLoading">
+                <mat-spinner diameter="40"></mat-spinner>
+                <p>Loading facility reports...</p>
+              </div>
+
+              <!-- Error State -->
+              <mat-card class="error-card" *ngIf="reportsError">
+                <mat-card-content>
+                  <div class="error-content">
+                    <mat-icon color="warn">error</mat-icon>
+                    <div>
+                      <p>{{ reportsError }}</p>
+                      <button
+                        mat-button
+                        color="primary"
+                        (click)="loadFacilityReports()"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Reports List -->
+              <div *ngIf="!reportsLoading && !reportsError">
+                <div
+                  class="reports-list"
+                  *ngIf="facilityReports.length > 0; else noReports"
+                >
+                  <mat-expansion-panel
+                    *ngFor="
+                      let report of facilityReports;
+                      trackBy: trackByReportId
+                    "
+                    class="report-panel"
+                  >
+                    <mat-expansion-panel-header>
+                      <mat-panel-title>
+                        <div class="report-title">
+                          <span>{{ report.title }}</span>
+                          <mat-chip
+                            [color]="getStatusColor(report.status)"
+                            selected
+                          >
+                            {{ report.status }}
+                          </mat-chip>
+                        </div>
+                      </mat-panel-title>
+                      <mat-panel-description>
+                        <div class="report-meta">
+                          <span>{{ report.category }}</span>
+                          <mat-chip
+                            [color]="getPriorityColor(report.priority)"
+                            size="small"
+                          >
+                            {{ report.priority }}
+                          </mat-chip>
+                          <span>{{ formatDate(report.createdAt) }}</span>
+                        </div>
+                      </mat-panel-description>
+                    </mat-expansion-panel-header>
+
+                    <!-- Report Details -->
+                    <div class="report-details">
+                      <div class="report-info">
+                        <h4>Description</h4>
+                        <p>{{ report.description }}</p>
+
+                        <div class="report-metadata">
+                          <div class="meta-item">
+                            <strong>Reported by:</strong>
+                            {{ report.reportedBy.firstName }}
+                            {{ report.reportedBy.lastName }}
+                          </div>
+                          <div class="meta-item">
+                            <strong>Created:</strong>
+                            {{ formatDate(report.createdAt) }}
+                          </div>
+                          <div class="meta-item">
+                            <strong>Status:</strong>
+                            <mat-form-field
+                              appearance="outline"
+                              class="status-select"
+                            >
+                              <mat-select
+                                [value]="report.status"
+                                (selectionChange)="
+                                  updateReportStatus(report._id, $event.value)
+                                "
+                              >
+                                <mat-option value="Open">Open</mat-option>
+                                <mat-option value="In Progress"
+                                  >In Progress</mat-option
+                                >
+                                <mat-option value="Resolved"
+                                  >Resolved</mat-option
+                                >
+                              </mat-select>
+                            </mat-form-field>
+                          </div>
+                        </div>
+                      </div>
+
+                      <mat-divider></mat-divider>
+
+                      <!-- Comments Section -->
+                      <div class="comments-section">
+                        <h4>Comments ({{ report.comments.length }})</h4>
+
+                        <!-- Add Comment -->
+                        <div class="add-comment">
+                          <mat-form-field
+                            appearance="outline"
+                            class="comment-field"
+                          >
+                            <mat-label>Add a comment...</mat-label>
+                            <textarea
+                              matInput
+                              [(ngModel)]="newComment"
+                              placeholder="Enter your comment here"
+                              rows="3"
+                            >
+                            </textarea>
+                          </mat-form-field>
+                          <button
+                            mat-raised-button
+                            color="primary"
+                            (click)="addComment(report._id)"
+                            [disabled]="!newComment.trim() || addingComment"
+                          >
+                            <mat-icon>send</mat-icon>
+                            {{ addingComment ? "Adding..." : "Add Comment" }}
+                          </button>
+                        </div>
+
+                        <!-- Comments List -->
+                        <div
+                          class="comments-list"
+                          *ngIf="report.comments.length > 0"
+                        >
+                          <div
+                            class="comment-item"
+                            *ngFor="let comment of report.comments"
+                          >
+                            <div class="comment-header">
+                              <div class="comment-author">
+                                <mat-icon>person</mat-icon>
+                                <strong
+                                  >{{ comment.commentedBy.firstName }}
+                                  {{ comment.commentedBy.lastName }}</strong
+                                >
+                                <span class="comment-role"
+                                  >({{ comment.commentedBy.username }})</span
+                                >
+                              </div>
+                              <div class="comment-date">
+                                {{ formatDate(comment.createdAt) }}
+                                <span
+                                  *ngIf="comment.isEdited"
+                                  class="edited-indicator"
+                                  >(edited)</span
+                                >
+                              </div>
+                            </div>
+                            <div class="comment-body">
+                              {{ comment.comment }}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div
+                          class="no-comments"
+                          *ngIf="report.comments.length === 0"
+                        >
+                          <mat-icon>comment</mat-icon>
+                          <p>No comments yet. Be the first to comment!</p>
+                        </div>
+                      </div>
+                    </div>
+                  </mat-expansion-panel>
+                </div>
+
+                <ng-template #noReports>
+                  <div class="empty-state">
+                    <mat-icon>report</mat-icon>
+                    <h4>No Facility Reports</h4>
+                    <p>
+                      No facility reports have been submitted for this house.
+                    </p>
+                  </div>
+                </ng-template>
+
+                <!-- Pagination -->
+                <mat-paginator
+                  *ngIf="totalReports > 0"
+                  [length]="totalReports"
+                  [pageSize]="pageSize"
+                  [pageIndex]="currentPageIndex"
+                  [pageSizeOptions]="[5, 10, 25]"
+                  [showFirstLastButtons]="true"
+                  (page)="onPageChange($event)"
+                  class="reports-paginator"
+                >
+                </mat-paginator>
+              </div>
+            </div>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    </mat-card>
+  </div>
+</div>

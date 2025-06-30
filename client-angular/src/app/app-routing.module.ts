@@ -5,6 +5,7 @@ import { EmployeeDashboardComponent } from './employee-dashboard/employee-dashbo
 import { LoginComponent } from './pages/login/login.component';
 import { HomeComponent } from './hr/home/home.component';
 import { EmployeeProfilesComponent } from './hr/employee-profiles/employee-profiles.component';
+import { EmployeeProfileDetailComponent } from './hr/employee-profile-detail/employee-profile-detail.component';
 import { VisaStatusManagementComponent } from './hr/visa-status-management/visa-status-management.component';
 import { HiringManagementComponent } from './hr/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './hr/housing-management/housing-management.component';
@@ -26,6 +27,7 @@ const routes: Routes = [
       { path: 'housing', component: HousingManagementComponent },
     ]
   },
+  { path: 'hr/employee-profile/:id', component: EmployeeProfileDetailComponent },
   { path: 'employee', component: EmployeeDashboardComponent },
   { path: '**', redirectTo: 'login' },
 ];

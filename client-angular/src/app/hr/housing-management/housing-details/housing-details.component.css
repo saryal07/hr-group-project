@@ -1,0 +1,535 @@
+.housing-details-container {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: calc(100vh - 200px);
+  padding-bottom: 40px;
+}
+
+/* Loading States */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 16px;
+}
+
+.loading-container p {
+  color: #666;
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Overview Card */
+.overview-card {
+  margin-bottom: 24px;
+  border: 1px solid #e0e0e0;
+}
+
+.house-avatar {
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.house-avatar mat-icon {
+  font-size: 1.5rem;
+}
+
+/* Quick Stats */
+.quick-stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f5f5f5;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 150px;
+}
+
+.stat-item mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+.stat-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Occupancy Section */
+.occupancy-section {
+  margin-top: 16px;
+}
+
+.occupancy-section h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.occupancy-text {
+  margin: 8px 0 0 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* Tabs Card */
+.tabs-card {
+  border: 1px solid #e0e0e0;
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+/* Sections */
+.section {
+  margin-bottom: 32px;
+}
+
+.section:last-child {
+  margin-bottom: 0;
+}
+
+.section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px 0;
+  color: #1976d2;
+  font-size: 1.25rem;
+  font-weight: 500;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+/* Info Grid */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+}
+
+.info-item mat-icon {
+  color: #1976d2;
+  font-size: 1.2rem;
+}
+
+.info-item div {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.info-item strong {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.info-item span {
+  font-size: 1rem;
+  color: #333;
+}
+
+/* Facility Grid */
+.facility-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+
+.facility-item {
+  transition: transform 0.2s ease-in-out;
+  border: 1px solid #e0e0e0;
+}
+
+.facility-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.facility-stat {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.facility-stat mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+  color: #1976d2;
+}
+
+.facility-stat div {
+  display: flex;
+  flex-direction: column;
+}
+
+.facility-stat .number {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.2;
+}
+
+.facility-stat .label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Employees Grid */
+.employees-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 20px;
+}
+
+.employee-card {
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  border: 1px solid #e0e0e0;
+}
+
+.employee-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+  border-color: #1976d2;
+}
+
+.employee-avatar {
+  background-color: #1976d2;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.employee-info {
+  margin-top: 8px;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.info-row mat-icon {
+  font-size: 1rem;
+  width: 1rem;
+  height: 1rem;
+  color: #999;
+}
+
+/* Reports Section */
+.reports-list {
+  margin-bottom: 24px;
+}
+
+.report-panel {
+  margin-bottom: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.report-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 16px;
+}
+
+.report-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.report-details {
+  padding: 16px 0;
+}
+
+.report-info h4 {
+  margin: 0 0 8px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.report-info p {
+  margin: 0 0 16px 0;
+  color: #666;
+  line-height: 1.5;
+}
+
+.report-metadata {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.meta-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.meta-item strong {
+  color: #333;
+}
+
+.status-select {
+  min-width: 120px;
+}
+
+/* Comments Section */
+.comments-section {
+  margin-top: 16px;
+}
+
+.comments-section h4 {
+  margin: 0 0 16px 0;
+  color: #333;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.add-comment {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+  margin-bottom: 24px;
+}
+
+.comment-field {
+  flex: 1;
+}
+
+.comments-list {
+  margin-top: 16px;
+}
+
+.comment-item {
+  padding: 16px;
+  margin-bottom: 12px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  border-left: 4px solid #1976d2;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9rem;
+}
+
+.comment-author mat-icon {
+  font-size: 1rem;
+  color: #666;
+}
+
+.comment-role {
+  color: #999;
+  font-size: 0.8rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #999;
+}
+
+.edited-indicator {
+  font-style: italic;
+  color: #666;
+}
+
+.comment-body {
+  color: #333;
+  line-height: 1.5;
+  margin-left: 24px;
+}
+
+.no-comments {
+  text-align: center;
+  padding: 32px;
+  color: #999;
+}
+
+.no-comments mat-icon {
+  font-size: 3rem;
+  width: 3rem;
+  height: 3rem;
+  margin-bottom: 8px;
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #666;
+}
+
+.empty-state mat-icon {
+  font-size: 4rem;
+  width: 4rem;
+  height: 4rem;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.empty-state h4 {
+  margin: 0 0 8px 0;
+  font-weight: 400;
+}
+
+.empty-state p {
+  margin: 0;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* Pagination */
+.reports-paginator {
+  margin-top: 24px;
+  border-top: 1px solid #e0e0e0;
+  background-color: #fafafa;
+}
+
+/* Error Card */
+.error-card {
+  margin-bottom: 16px;
+  border-left: 4px solid #f44336;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.error-content mat-icon {
+  font-size: 2rem;
+  width: 2rem;
+  height: 2rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .housing-details-container {
+    padding: 16px;
+  }
+
+  .quick-stats {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .facility-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .employees-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .add-comment {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .report-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .facility-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-item {
+    min-width: unset;
+  }
+
+  .report-title {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
