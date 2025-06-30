@@ -196,7 +196,7 @@ export class HousingDetailsComponent implements OnInit, OnChanges {
 
   // Employee profile navigation
   viewEmployeeProfile(employeeId: string): void {
-    // Navigate to the correct route (singular "profile")
+    // Navigate to employee profile page
     this.router.navigate(['/hr/employee-profile', employeeId]).then(() => {
       this.snackBar.open('Opening employee profile', 'Close', {
         duration: 2000,
