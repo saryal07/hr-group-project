@@ -1,22 +1,140 @@
-<div class="page-container">
-  <h2>Hiring Management</h2>
-  <p>Manage recruitment processes and new employee onboarding.</p>
-  
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Recruitment & Onboarding</mat-card-title>
-      <mat-card-subtitle>Manage the hiring process from start to finish</mat-card-subtitle>
-    </mat-card-header>
+<!-- Invite Section -->
+<mat-card class="mat-elevation-z4" style="max-width: 600px; margin: auto; margin-top: 2rem; padding: 1.5rem;">
+  <form [formGroup]="inviteForm" (ngSubmit)="onSubmit()">
+    <mat-card-title>Send Registration Invite</mat-card-title>
     <mat-card-content>
-      <p>This section will contain hiring management functionality.</p>
-      <p>Features to be implemented:</p>
-      <ul>
-        <li>Send registration invitations to new employees</li>
-        <li>Track onboarding progress</li>
-        <li>Review and approve onboarding applications</li>
-        <li>Manage employee registration tokens</li>
-        <li>View hiring pipeline and statistics</li>
-      </ul>
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Employee Name</mat-label>
+          <input matInput type="text" formControlName="name" required>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Employee Email</mat-label>
+          <input matInput type="email" formControlName="email" required>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" [disabled]="inviteForm.invalid" class="full-width">
+          Send Invite
+        </button>
+      </div>
+
+      <div *ngIf="statusMsg" class="mt-3" style="color: green; display: flex; align-items: center; gap: 0.5rem;">
+        <mat-icon color="primary">check_circle</mat-icon> {{ statusMsg }}
+      </div>
+
+      <div *ngIf="error" class="mt-3" style="color: red; display: flex; align-items: center; gap: 0.5rem;">
+        <mat-icon color="warn">error</mat-icon> {{ error }}
+      </div>
     </mat-card-content>
-  </mat-card>
-</div>
+  </form>
+</mat-card>
+
+<!-- Invite History -->
+<mat-card class="mat-elevation-z2" style="margin: 2rem auto; max-width: 900px;">
+  <mat-card-title>Invite History</mat-card-title>
+  <mat-card-content>
+    <table mat-table [dataSource]="inviteHistory" class="mat-elevation-z1 full-width" style="margin-top: 1rem;">
+
+      <!-- Email -->
+      <ng-container matColumnDef="email">
+        <th mat-header-cell *matHeaderCellDef>Email</th>
+        <td mat-cell *matCellDef="let row">{{ row.email }}</td>
+      </ng-container>
+
+      <!-- Name -->
+      <ng-container matColumnDef="name">
+        <th mat-header-cell *matHeaderCellDef>Name</th>
+        <td mat-cell *matCellDef="let row">{{ row.name }}</td>
+      </ng-container>
+
+      <!-- Link -->
+      <ng-container matColumnDef="link">
+        <th mat-header-cell *matHeaderCellDef>Registration Link</th>
+        <td mat-cell *matCellDef="let row">
+          <a [href]="'http://localhost:3000/register/' + row.token" target="_blank">Open Link</a>
+        </td>
+      </ng-container>
+
+      <!-- Status -->
+      <ng-container matColumnDef="registered">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let row">
+          <span [ngClass]="row.registered ? 'text-success' : 'text-warning'">
+            <mat-chip [color]="row.registered ? 'primary' : 'warn'" selected>
+              {{ row.registered ? 'Registered' : 'Pending' }}
+            </mat-chip>
+          </span>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="['email', 'name', 'link', 'registered']"></tr>
+      <tr mat-row *matRowDef="let row; columns: ['email', 'name', 'link', 'registered'];"></tr>
+    </table>
+  </mat-card-content>
+</mat-card>
+
+<!-- Submitted Applications Tabs -->
+<mat-card class="mat-elevation-z2" style="margin: 2rem auto; max-width: 900px;">
+  <mat-card-title>Submitted Applications</mat-card-title>
+  <mat-card-content>
+    <mat-tab-group>
+      <!-- Pending Tab -->
+      <mat-tab label="Pending">
+        <div *ngIf="(applications['Pending'] || []).length > 0; else noPending" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Pending']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+        </div>
+      </div>
+        <ng-template #noPending><p>No pending applications.</p></ng-template>
+      </mat-tab>
+
+      <!-- Rejected Tab -->
+      <mat-tab label="Rejected">
+        <div *ngIf="(applications['Rejected'] || []).length > 0; else noRejected" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Rejected']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+          </div>
+        </div>
+        <ng-template #noRejected><p>No rejected applications.</p></ng-template>
+      </mat-tab>
+
+      <!-- Approved Tab -->
+      <mat-tab label="Approved">
+        <div *ngIf="(applications['Approved'] || []).length > 0; else noApproved" style="margin-top: 1rem;">
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <mat-card *ngFor="let app of applications['Approved']" class="mat-elevation-z2" style="padding: 1rem;">
+            <div style="margin-bottom: 0.5rem;">
+              <h3 style="margin: 0;">{{ app.firstName }} {{ app.lastName }}</h3>
+              <p style="margin: 0; word-break: break-word;">{{ app.email }}</p>
+            </div>
+
+            <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+              <button mat-raised-button color="primary" (click)="viewApplication(app._id)">View Application</button>
+            </div>
+          </mat-card>
+          </div>
+        </div>
+        <ng-template #noApproved><p>No approved applications.</p></ng-template>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card-content>
+</mat-card>

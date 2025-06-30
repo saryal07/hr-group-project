@@ -16,6 +16,8 @@ const {
   rejectDocument,
   getOptEmployees,
   getWorkflowSummary,
+  getInviteHistory,
+  getSpecificOnboarding,
   getAllEmployees,
   getEmployeeById
 } = require('../controllers/hrController');
@@ -27,7 +29,12 @@ console.log('Admin middleware:', adminMiddleware);
 router.use(adminMiddleware);
 
 // Sending Tokenized registration link
-router.route('/invite').post(createRegistrationToken);
+router.route('/invite')
+  .post(createRegistrationToken)
+  
+router.route('/invite-history').get(getInviteHistory);
+
+router.route('/onboarding').get(getSpecificOnboarding);
 
 // Housing routes
 router.route('/housing').get(getHousing).post(createHousing).put(updateHousing);

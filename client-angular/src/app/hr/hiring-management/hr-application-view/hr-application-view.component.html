@@ -1,0 +1,84 @@
+<ng-container *ngIf="!loading">
+    <mat-card class="mat-elevation-z4" style="margin: 2rem auto; max-width: 900px;">
+        <mat-card-title>Submitted Form Summary</mat-card-title>
+        <mat-card-content>
+            <mat-divider></mat-divider>
+            <h3>Personal Info</h3>
+            <p><strong>Full Name:</strong> {{ application.firstName }} {{ application.middleName }} {{ application.lastName }}</p>
+            <p><strong>Preferred Name:</strong> {{ application.preferredName }}</p>
+            <p><strong>Email:</strong> {{ application.email }}</p>
+            <p><strong>SSN:</strong> {{ application.ssn }}</p>
+            <p><strong>Date of Birth:</strong> {{ application.dob | date }}</p>
+            <p><strong>Gender:</strong> {{ application.gender }}</p>
+
+            <mat-divider></mat-divider>
+            <h3>Address</h3>
+            <p>{{ application.address.building }} {{ application.address.street }}, {{ application.address.city }}, {{ application.address.state }} {{ application.address.zip }}</p>
+
+            <mat-divider></mat-divider>
+            <h3>Contact Info</h3>
+            <p><strong>Cell:</strong> {{ application.cellPhone }}</p>
+            <p><strong>Work:</strong> {{ application.workPhone }}</p>
+
+            <mat-divider></mat-divider>
+            <h3>Car Info</h3>
+            <p *ngIf="application.car">
+                <strong>Make:</strong> {{ application.car.make }},
+                <strong>Model:</strong> {{ application.car.model }},
+                <strong>Color:</strong> {{ application.car.color }}
+            </p>
+
+            <mat-divider></mat-divider>
+            <h3>Work Authorization</h3>
+            <p *ngIf="application.isCitizen">Citizen / {{ application.residencyType }}</p>
+            <div *ngIf="!application.isCitizen">
+                <p><strong>Visa Type:</strong> {{ application.visa?.type }}</p>
+                <p><strong>Title:</strong> {{ application.visa?.title }}</p>
+                <p><strong>Start Date:</strong> {{ application.visa?.startDate | date }}</p>
+                <p><strong>End Date:</strong> {{ application.visa?.endDate | date }}</p>
+            </div>
+
+            <mat-divider *ngIf="application.hasLicense"></mat-divider>
+            <h3 *ngIf="application.hasLicense">Driver's License</h3>
+            <p *ngIf="application.hasLicense">
+                <strong>Number:</strong> {{ application.driversLicense?.number }} <br>
+                <strong>Expiration:</strong> {{ application.driversLicense?.expirationDate | date }}
+            </p>
+
+            <mat-divider></mat-divider>
+            <h3>Reference</h3>
+            <p>{{ application.reference?.firstName }} {{ application.reference?.middleName }} {{ application.reference?.lastName }}</p>
+            <p>{{ application.reference?.relationship }}</p>
+            <p>{{ application.reference?.email }} | {{ application.reference?.phone }}</p>
+
+            <h4>Emergency Contacts</h4>
+            <div *ngFor="let ec of application.emergencyContacts">
+            <p>🔹 {{ ec.firstName }} {{ ec.middleName }} {{ ec.lastName }}</p>
+            <p>📞 {{ ec.phone }} | 📧 {{ ec.email }} | 🧑‍🤝‍🧑 {{ ec.relationship }}</p>
+            </div>
+
+            <h3 style="margin-top: 2rem;">Uploaded Documents</h3>
+            <mat-list *ngIf="documents.length > 0; else noDocs">
+                <mat-list-item *ngFor="let doc of documents">
+                    <span>{{ doc.fileName || 'Document' }}</span>
+                    <span class="spacer"></span>
+                    <button mat-button color="primary" (click)="openDocument(doc.downloadUrl)">View</button>
+                </mat-list-item>
+            </mat-list>
+
+            <ng-template #noDocs>
+                <p>No documents uploaded.</p>
+            </ng-template>
+
+            <div *ngIf="application.onboardingStatus === 'Pending'" style="display: flex; gap: 12px; margin-top: 2rem;">
+                <button mat-raised-button color="primary" (click)="approveApplication()">Approve</button>
+                <button mat-raised-button color="warn" (click)="openRejectionPrompt()">Reject</button>
+            </div>
+
+            <div *ngIf="application.onboardingStatus === 'Rejected'">
+                <h4>Feedback:</h4>
+                <p style="color: red;">{{ application.hrFeedback }}</p>
+            </div>
+        </mat-card-content>
+    </mat-card>
+</ng-container>

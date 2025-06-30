@@ -9,6 +9,7 @@ import { EmployeeProfileDetailComponent } from './hr/employee-profile-detail/emp
 import { VisaStatusManagementComponent } from './hr/visa-status-management/visa-status-management.component';
 import { HiringManagementComponent } from './hr/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './hr/housing-management/housing-management.component';
+import { HrApplicationViewComponent } from './hr/hiring-management/hr-application-view/hr-application-view.component';
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -21,8 +22,9 @@ const routes: Routes = [
       { path: 'home', component: HomeComponent },
       { path: 'employee-profiles', component: EmployeeProfilesComponent },
       { path: 'visa-status', component: VisaStatusManagementComponent },
-      { path: 'hiring', component: HiringManagementComponent },
-      { path: 'housing', component: HousingManagementComponent }
+      { path: 'hiring', component: HiringManagementComponent,},
+      { path: 'onboarding/:id', component: HrApplicationViewComponent },
+      { path: 'housing', component: HousingManagementComponent },
     ]
   },
   { path: 'hr/employee-profile/:id', component: EmployeeProfileDetailComponent },

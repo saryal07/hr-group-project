@@ -2,6 +2,7 @@ const asyncHandler = require('express-async-handler');
 const Employee = require('../models/Employee');
 const jwt = require('jsonwebtoken');
 const TokenModel = require('../models/TokenModel');
+const Invite = require('../models/Invite');
 
 const checkRegistrationToken = asyncHandler(async (req, res) => {
   const { token } = req.params;
@@ -110,6 +111,7 @@ const registerEmployee = asyncHandler(async (req, res) => {
   // Mark token as used
   tokenRecord.used = true;
   await tokenRecord.save();
+  await Invite.findOneAndUpdate({ token }, { registered: true });
 
   res.status(201).json({
     message: 'User registered successfully',
