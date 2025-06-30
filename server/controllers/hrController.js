@@ -337,6 +337,121 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
   });
 });
 
+// GET /hr/employees - Get all employees with summary information
+const getAllEmployees = asyncHandler(async (req, res) => {
+  const { search } = req.query;
+  
+  let employees;
+  
+  if (search) {
+    // Get all employees first, then filter by full name search
+    const allEmployees = await Employee.find({})
+      .select('firstName lastName middleName preferredName email cellPhone ssn visa onboardingStatus')
+      .sort({ lastName: 1, firstName: 1 });
+    
+    // Create search regex for case-insensitive search
+    const searchRegex = new RegExp(search, 'i');
+    
+    // Filter employees based on multiple criteria including full name
+    employees = allEmployees.filter(emp => {
+      const fullName = `${emp.firstName || ''} ${emp.middleName ? emp.middleName + ' ' : ''}${emp.lastName || ''}`.trim();
+      const firstLastName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim();
+      
+      return searchRegex.test(emp.firstName || '') ||
+             searchRegex.test(emp.lastName || '') ||
+             searchRegex.test(emp.preferredName || '') ||
+             searchRegex.test(emp.email || '') ||
+             searchRegex.test(fullName) ||
+             searchRegex.test(firstLastName);
+    });
+  } else {
+    // If no search, get all employees
+    employees = await Employee.find({})
+      .select('firstName lastName middleName preferredName email cellPhone ssn visa onboardingStatus')
+      .sort({ lastName: 1, firstName: 1 });
+  }
+
+  // Format the response to match frontend requirements
+  const formattedEmployees = employees.map(emp => ({
+    id: emp._id,
+    name: {
+      first: emp.firstName || '',
+      middle: emp.middleName || '',
+      last: emp.lastName || '',
+      preferred: emp.preferredName || ''
+    },
+    fullName: `${emp.firstName || ''} ${emp.middleName ? emp.middleName + ' ' : ''}${emp.lastName || ''}`.trim(),
+    email: emp.email,
+    phone: emp.cellPhone || '',
+    ssn: emp.ssn || '',
+    workAuthTitle: emp.visa?.title || 'Not specified',
+    onboardingStatus: emp.onboardingStatus
+  }));
+
+  res.status(200).json({
+    success: true,
+    count: formattedEmployees.length,
+    data: formattedEmployees
+  });
+});
+
+// GET /hr/employees/:id - Get specific employee by ID with full profile
+const getEmployeeById = asyncHandler(async (req, res) => {
+  const employee = await Employee.findById(req.params.id)
+    .select('-password'); // Exclude password from response
+
+  if (!employee) {
+    res.status(404);
+    throw new Error('Employee not found');
+  }
+
+  // Format the response with complete employee information
+  const formattedEmployee = {
+    id: employee._id,
+    personalInfo: {
+      firstName: employee.firstName || '',
+      lastName: employee.lastName || '',
+      middleName: employee.middleName || '',
+      preferredName: employee.preferredName || '',
+      email: employee.email,
+      cellPhone: employee.cellPhone || '',
+      workPhone: employee.workPhone || '',
+      ssn: employee.ssn || '',
+      dob: employee.dob || null,
+      gender: employee.gender || ''
+    },
+    address: employee.address || {},
+    citizenship: {
+      isCitizen: employee.isCitizen,
+      citizenshipStatus: employee.citizenshipStatus || '',
+      visa: employee.visa || {}
+    },
+    driversLicense: {
+      hasLicense: employee.hasLicense,
+      number: employee.driversLicense?.number || '',
+      expirationDate: employee.driversLicense?.expirationDate || null,
+      licenseUrl: employee.driversLicense?.licenseUrl || ''
+    },
+    reference: employee.reference || {},
+    emergencyContacts: employee.emergencyContacts || [],
+    onboarding: {
+      status: employee.onboardingStatus,
+      hrFeedback: employee.hrFeedback || ''
+    },
+    account: {
+      username: employee.username,
+      role: employee.role,
+      createdAt: employee.createdAt,
+      updatedAt: employee.updatedAt
+    }
+  };
+
+  res.status(200).json({
+    success: true,
+    data: formattedEmployee
+  });
+});
+
 module.exports = {
   createRegistrationToken,
   getHousing,
@@ -353,4 +468,6 @@ module.exports = {
   rejectDocument,
   getOptEmployees,
   getWorkflowSummary,
+  getAllEmployees,
+  getEmployeeById
 };

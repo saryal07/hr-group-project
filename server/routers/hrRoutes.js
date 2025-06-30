@@ -16,6 +16,8 @@ const {
   rejectDocument,
   getOptEmployees,
   getWorkflowSummary,
+  getAllEmployees,
+  getEmployeeById
 } = require('../controllers/hrController');
 const { protect } = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
@@ -53,9 +55,18 @@ router.route('/documents/:id/approve').put(approveDocument);
 
 router.route('/documents/:id/reject').put(rejectDocument);
 
-// OPT employee management
-router.route('/employees/opt').get(getOptEmployees);
+// Employee management routes
+router.route('/employees')
+  .get(getAllEmployees);
 
-router.route('/workflow-summary').get(getWorkflowSummary);
+// OPT employee management - moved before parameterized route
+router.route('/employees/opt')
+  .get(getOptEmployees);
+
+router.route('/employees/:id')
+  .get(getEmployeeById);
+
+router.route('/workflow-summary')
+  .get(getWorkflowSummary);
 
 module.exports = router;

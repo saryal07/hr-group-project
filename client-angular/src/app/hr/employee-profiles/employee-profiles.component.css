@@ -1,0 +1,263 @@
+.page-container {
+  padding: 24px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.header-section {
+  margin-bottom: 24px;
+}
+
+.header-section h2 {
+  margin: 0 0 8px 0;
+  color: #1976d2;
+  font-weight: 500;
+}
+
+.subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 16px;
+}
+
+/* Search Section */
+.search-card {
+  margin-bottom: 24px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.search-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 600px;
+}
+
+.search-results-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.info-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+/* Loading */
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+  color: #666;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  font-size: 16px;
+}
+
+/* Error */
+.error-card {
+  margin-bottom: 24px;
+  background-color: #ffebee;
+  border-left: 4px solid #f44336;
+}
+
+.error-content {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.error-icon {
+  color: #f44336;
+  font-size: 20px;
+}
+
+/* Table */
+.table-card {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.table-container {
+  overflow-x: auto;
+  max-height: 600px;
+  overflow-y: auto;
+}
+
+.employee-table {
+  width: 100%;
+  background: white;
+}
+
+.employee-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 16px 12px;
+}
+
+.employee-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.employee-row {
+  transition: background-color 0.2s ease;
+}
+
+.employee-row:hover {
+  background-color: #f8f9fa;
+}
+
+/* Name Column */
+.name-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-name-link {
+  color: #1976d2;
+  text-decoration: none;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.employee-name-link:hover {
+  color: #1565c0;
+  text-decoration: underline;
+}
+
+.preferred-name {
+  font-size: 12px;
+  color: #666;
+  font-style: italic;
+}
+
+/* Contact Info */
+.phone-cell,
+.email-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contact-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #666;
+}
+
+.email-link {
+  color: #1976d2;
+  text-decoration: none;
+}
+
+.email-link:hover {
+  text-decoration: underline;
+}
+
+/* Chips */
+mat-chip-listbox {
+  --mdc-chip-container-height: 28px;
+}
+
+mat-chip-option {
+  --mdc-chip-label-text-size: 12px;
+  font-weight: 500;
+}
+
+/* No Results */
+.no-results {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+  color: #666;
+}
+
+.no-results-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.no-results h3 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.no-results p {
+  margin: 8px 0;
+  max-width: 400px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .page-container {
+    padding: 16px;
+  }
+  
+  .search-field {
+    max-width: 100%;
+  }
+  
+  .employee-table th,
+  .employee-table td {
+    padding: 8px 6px;
+    font-size: 14px;
+  }
+  
+  .name-cell {
+    min-width: 150px;
+  }
+  
+  .phone-cell,
+  .email-cell {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .contact-icon {
+    display: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .employee-table {
+    font-size: 12px;
+  }
+  
+  .search-results-info {
+    font-size: 12px;
+  }
+  
+  .employee-name-link {
+    font-size: 14px;
+  }
+  
+  .preferred-name {
+    font-size: 11px;
+  }
+}
