@@ -1,0 +1,308 @@
+.visa-status-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e0e0e0;
+}
+
+.header h1 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #1976d2;
+}
+
+.visa-tabs {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.tab-content {
+  padding: 24px;
+}
+
+.tab-header {
+  margin-bottom: 24px;
+}
+
+.tab-header h2 {
+  margin: 0 0 8px 0;
+  color: #333;
+}
+
+.tab-header p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.search-container {
+  margin-bottom: 24px;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 400px;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  color: #666;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  text-align: center;
+  background-color: #ffebee;
+  border-radius: 8px;
+  border: 1px solid #ffcdd2;
+}
+
+.error-container mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #d32f2f;
+}
+
+.error-container p {
+  margin: 16px 0;
+  color: #d32f2f;
+}
+
+.table-container {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.visa-table {
+  width: 100%;
+}
+
+.visa-table th {
+  background-color: #f5f5f5;
+  font-weight: 600;
+  color: #333;
+}
+
+.visa-table td {
+  padding: 16px 8px;
+  vertical-align: top;
+}
+
+.employee-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.employee-name {
+  font-weight: 600;
+  color: #333;
+}
+
+.employee-email {
+  font-size: 12px;
+  color: #666;
+}
+
+.work-auth-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.auth-title {
+  font-weight: 600;
+  color: #333;
+}
+
+.auth-dates {
+  font-size: 12px;
+  color: #666;
+}
+
+.days-remaining {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.days-remaining.primary {
+  color: #1976d2;
+}
+
+.days-remaining.accent {
+  color: #ff9800;
+}
+
+.days-remaining.warn {
+  color: #f44336;
+}
+
+.days-remaining mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.next-step {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #333;
+}
+
+.next-step mat-icon {
+  color: #1976d2;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.documents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.document-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  background-color: #f5f5f5;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.document-item mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #1976d2;
+}
+
+.document-name {
+  font-weight: 500;
+  color: #333;
+}
+
+.document-date {
+  color: #666;
+  margin-left: auto;
+}
+
+.no-documents {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #999;
+  font-style: italic;
+  font-size: 12px;
+}
+
+.no-documents mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.no-data {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+  color: #666;
+}
+
+.no-data mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+  color: #4caf50;
+}
+
+.no-data p {
+  margin: 0;
+  font-size: 16px;
+}
+
+.document-menu-item {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .visa-status-container {
+    padding: 16px;
+  }
+
+  .header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: flex-start;
+  }
+
+  .tab-content {
+    padding: 16px;
+  }
+
+  .visa-table {
+    font-size: 12px;
+  }
+
+  .visa-table td {
+    padding: 8px 4px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons button {
+    width: 100%;
+  }
+}
+
+/* Material table responsive */
+@media (max-width: 600px) {
+  .visa-table {
+    display: block;
+    overflow-x: auto;
+  }
+}

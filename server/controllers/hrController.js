@@ -306,7 +306,7 @@ const rejectDocument = asyncHandler(async (req, res) => {
 // GET /hr/employees/opt - Get all employees with OPT visa status
 const getOptEmployees = asyncHandler(async (req, res) => {
   const employees = await Employee.find({
-    'visa.title': 'OPT',
+    'visa.type': 'F1'
   }).select('firstName lastName email visa onboardingStatus');
 
   res.status(200).json({
@@ -320,7 +320,7 @@ const getOptEmployees = asyncHandler(async (req, res) => {
 const getWorkflowSummary = asyncHandler(async (req, res) => {
   // Get all OPT employees
   const optEmployees = await Employee.find({
-    'visa.title': 'OPT',
+    'visa.type': 'F1'
   }).select('firstName lastName email');
 
   const summary = await Promise.all(
@@ -493,6 +493,300 @@ const getEmployeeById = asyncHandler(async (req, res) => {
   });
 });
 
+// GET /hr/visa-status/in-progress - Get employees with pending OPT documents
+const getInProgressOptEmployees = asyncHandler(async (req, res) => {
+  // Get all OPT employees
+  const optEmployees = await Employee.find({
+    'visa.type': 'F1'
+  }).select('firstName lastName email visa');
+
+  const inProgressEmployees = await Promise.all(
+    optEmployees.map(async (employee) => {
+      const documents = await Document.find({ 
+        employee: employee._id,
+        documentType: { $in: ['opt_receipt', 'opt_ead', 'i_983', 'i_20'] }
+      }).sort({ stepOrder: 1 });
+
+      const workflowSteps = [
+        { stepOrder: 1, documentType: 'opt_receipt', stepName: 'OPT Receipt' },
+        { stepOrder: 2, documentType: 'opt_ead', stepName: 'OPT EAD' },
+        { stepOrder: 3, documentType: 'i_983', stepName: 'I-983' },
+        { stepOrder: 4, documentType: 'i_20', stepName: 'I-20' },
+      ];
+
+      // Find the current step and next step
+      let currentStep = null;
+      let nextStep = null;
+      let pendingDocument = null;
+
+      for (let i = 0; i < workflowSteps.length; i++) {
+        const step = workflowSteps[i];
+        const document = documents.find(doc => doc.stepOrder === step.stepOrder);
+        
+        if (!document) {
+          // This step hasn't been uploaded yet
+          nextStep = step;
+          break;
+        } else if (document.status === 'pending') {
+          // This step is pending HR approval
+          currentStep = step;
+          pendingDocument = document;
+          break;
+        } else if (document.status === 'rejected') {
+          // This step was rejected, employee needs to resubmit
+          currentStep = step;
+          nextStep = step;
+          break;
+        }
+        // If approved, continue to next step
+      }
+
+      // Check if all documents are approved
+      const allApproved = documents.length === 4 && 
+        documents.every(doc => doc.status === 'approved');
+
+      if (allApproved) {
+        return null; // Not in progress
+      }
+
+      // Calculate days remaining
+      const endDate = new Date(employee.visa.endDate);
+      const today = new Date();
+      const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+      // Determine next step message
+      let nextStepMessage = '';
+      let actionType = '';
+
+      if (pendingDocument) {
+        nextStepMessage = `Waiting for HR approval of ${currentStep.stepName}`;
+        actionType = 'approve_reject';
+      } else if (nextStep) {
+        const stepMessages = {
+          1: 'Please upload your OPT Receipt',
+          2: 'Please upload your OPT EAD',
+          3: 'Please download and fill out the I-983 form',
+          4: 'Please upload your I-20'
+        };
+        nextStepMessage = stepMessages[nextStep.stepOrder];
+        actionType = 'send_notification';
+      }
+
+      return {
+        employee: {
+          id: employee._id,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          email: employee.email,
+          fullName: `${employee.firstName} ${employee.lastName}`
+        },
+        workAuthorization: {
+          title: employee.visa.title,
+          startDate: employee.visa.startDate,
+          endDate: employee.visa.endDate,
+          daysRemaining: daysRemaining > 0 ? daysRemaining : 0
+        },
+        nextStep: nextStepMessage,
+        actionType,
+        pendingDocument: pendingDocument ? {
+          id: pendingDocument._id,
+          fileName: pendingDocument.fileName,
+          originalName: pendingDocument.originalName,
+          uploadDate: pendingDocument.uploadDate,
+          hrFeedback: pendingDocument.hrFeedback
+        } : null,
+        currentStep: currentStep ? currentStep.stepOrder : null
+      };
+    })
+  );
+
+  // Filter out null values (employees with all documents approved)
+  const filteredEmployees = inProgressEmployees.filter(emp => emp !== null);
+
+  res.status(200).json({
+    success: true,
+    count: filteredEmployees.length,
+    data: filteredEmployees
+  });
+});
+
+// GET /hr/visa-status/all - Get all OPT employees with their documents
+const getAllOptEmployees = asyncHandler(async (req, res) => {
+  const { search } = req.query;
+  
+  let optEmployees;
+  
+  if (search) {
+    // Get all OPT employees first, then filter by search
+    const allOptEmployees = await Employee.find({
+      'visa.type': 'F1'
+    }).select('firstName lastName middleName preferredName email visa');
+    
+    // Create search regex for case-insensitive search
+    const searchRegex = new RegExp(search, 'i');
+    
+    // Filter employees based on multiple criteria
+    optEmployees = allOptEmployees.filter(emp => {
+      const fullName = `${emp.firstName || ''} ${emp.middleName ? emp.middleName + ' ' : ''}${emp.lastName || ''}`.trim();
+      const firstLastName = `${emp.firstName || ''} ${emp.lastName || ''}`.trim();
+      
+      return searchRegex.test(emp.firstName || '') ||
+             searchRegex.test(emp.lastName || '') ||
+             searchRegex.test(emp.preferredName || '') ||
+             searchRegex.test(emp.email || '') ||
+             searchRegex.test(fullName) ||
+             searchRegex.test(firstLastName);
+    });
+  } else {
+    // If no search, get all OPT employees
+    optEmployees = await Employee.find({
+      'visa.type': 'F1'
+    }).select('firstName lastName middleName preferredName email visa');
+  }
+
+  const employeesWithDocuments = await Promise.all(
+    optEmployees.map(async (employee) => {
+      const documents = await Document.find({ 
+        employee: employee._id,
+        documentType: { $in: ['opt_receipt', 'opt_ead', 'i_983', 'i_20'] }
+      }).sort({ stepOrder: 1 });
+
+      // Calculate days remaining
+      const endDate = new Date(employee.visa.endDate);
+      const today = new Date();
+      const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+
+      // Get approved documents only
+      const approvedDocuments = documents.filter(doc => doc.status === 'approved').map(doc => ({
+        id: doc._id,
+        fileName: doc.fileName,
+        originalName: doc.originalName,
+        documentType: doc.documentType,
+        stepOrder: doc.stepOrder,
+        uploadDate: doc.uploadDate,
+        s3Key: doc.s3Key
+      }));
+
+      return {
+        employee: {
+          id: employee._id,
+          firstName: employee.firstName,
+          lastName: employee.lastName,
+          middleName: employee.middleName,
+          preferredName: employee.preferredName,
+          email: employee.email,
+          fullName: `${employee.firstName} ${employee.middleName ? employee.middleName + ' ' : ''}${employee.lastName}`
+        },
+        workAuthorization: {
+          title: employee.visa.title,
+          startDate: employee.visa.startDate,
+          endDate: employee.visa.endDate,
+          daysRemaining: daysRemaining > 0 ? daysRemaining : 0
+        },
+        approvedDocuments
+      };
+    })
+  );
+
+  res.status(200).json({
+    success: true,
+    count: employeesWithDocuments.length,
+    data: employeesWithDocuments
+  });
+});
+
+// POST /hr/visa-status/send-notification - Send email notification to employee
+const sendVisaNotification = asyncHandler(async (req, res) => {
+  console.log('sendVisaNotification: Request received');
+  console.log('sendVisaNotification: Request body:', req.body);
+  
+  const { employeeId, message } = req.body;
+
+  if (!employeeId || !message) {
+    console.log('sendVisaNotification: Missing required fields');
+    res.status(400);
+    throw new Error('Employee ID and message are required');
+  }
+
+  console.log('sendVisaNotification: Looking up employee:', employeeId);
+  const employee = await Employee.findById(employeeId);
+  if (!employee) {
+    console.log('sendVisaNotification: Employee not found');
+    res.status(404);
+    throw new Error('Employee not found');
+  }
+
+  console.log('sendVisaNotification: Employee found:', employee.email);
+
+  try {
+    // Import EmailService
+    const EmailService = require('../services/emailService');
+    
+    // Get employee's full name
+    const employeeName = `${employee.firstName} ${employee.lastName}`;
+    
+    // Calculate days remaining for context
+    const endDate = new Date(employee.visa.endDate);
+    const today = new Date();
+    const daysRemaining = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+    
+    console.log('sendVisaNotification: Calling EmailService.sendOptReminder');
+    // Send email notification
+    const emailResult = await EmailService.sendOptReminder(
+      employee.email,
+      employeeName,
+      message,
+      daysRemaining
+    );
+
+    console.log('sendVisaNotification: Email sent successfully');
+    console.log(`Notification sent to ${employee.email}: ${message}`);
+
+    res.status(200).json({
+      success: true,
+      message: 'Notification sent successfully',
+      data: {
+        employeeId,
+        email: employee.email,
+        employeeName,
+        message,
+        emailResult
+      }
+    });
+  } catch (error) {
+    console.error('sendVisaNotification: Error caught in controller:', error);
+    console.error('sendVisaNotification: Error message:', error.message);
+    console.error('sendVisaNotification: Error stack:', error.stack);
+    
+    res.status(500);
+    throw new Error(`Failed to send notification: ${error.message}`);
+  }
+});
+
+// GET /hr/documents/:id/preview - Get document preview URL
+const getDocumentPreviewUrl = asyncHandler(async (req, res) => {
+  const document = await Document.findById(req.params.id);
+  
+  if (!document) {
+    res.status(404);
+    throw new Error('Document not found');
+  }
+
+  // Generate signed URL for preview
+  const S3Service = require('../services/s3Service');
+  const previewUrl = await S3Service.getSignedUrl(document.s3Key, 3600); // 1 hour expiry
+
+  res.status(200).json({
+    success: true,
+    data: {
+      previewUrl,
+      fileName: document.fileName,
+      originalName: document.originalName,
+      documentType: document.documentType
+    }
+  });
+});
+
 module.exports = {
   createRegistrationToken,
   getInviteHistory,
@@ -512,5 +806,9 @@ module.exports = {
   getWorkflowSummary,
   getSpecificOnboarding,
   getAllEmployees,
-  getEmployeeById
+  getEmployeeById,
+  getInProgressOptEmployees,
+  getAllOptEmployees,
+  sendVisaNotification,
+  getDocumentPreviewUrl
 };

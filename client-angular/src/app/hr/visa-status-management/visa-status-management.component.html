@@ -1,22 +1,253 @@
-<div class="page-container">
-  <h2>Visa Status Management</h2>
-  <p>Track and manage employee visa applications and documentation.</p>
-  
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Visa Documentation Workflow</mat-card-title>
-      <mat-card-subtitle>OPT and other visa status management</mat-card-subtitle>
-    </mat-card-header>
-    <mat-card-content>
-      <p>This section will contain visa status management functionality.</p>
-      <p>Features to be implemented:</p>
-      <ul>
-        <li>View OPT workflow status for all employees</li>
-        <li>Approve/reject OPT documents</li>
-        <li>Track visa expiration dates</li>
-        <li>Generate reports on visa statuses</li>
-        <li>Manage I-983 templates</li>
-      </ul>
-    </mat-card-content>
-  </mat-card>
+<div class="visa-status-container">
+  <!-- Header -->
+  <div class="header">
+    <h1>
+      <mat-icon>work</mat-icon>
+      Visa Status Management
+    </h1>
+    <button mat-raised-button color="primary" (click)="refreshData()">
+      <mat-icon>refresh</mat-icon>
+      Refresh
+    </button>
+  </div>
+
+  <!-- Tabs -->
+  <mat-tab-group (selectedTabChange)="onTabChange($event)" class="visa-tabs">
+    
+    <!-- In Progress Tab -->
+    <mat-tab label="In Progress">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2>Employees with Pending OPT Documents</h2>
+          <p>Track employees who have not yet completed all required OPT documentation steps.</p>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="inProgressLoading" class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading in-progress employees...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="inProgressError && !inProgressLoading" class="error-container">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ inProgressError }}</p>
+          <button mat-button color="primary" (click)="loadInProgressEmployees()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+
+        <!-- Data Table -->
+        <div *ngIf="!inProgressLoading && !inProgressError" class="table-container">
+          <table mat-table [dataSource]="inProgressDataSource" matSort class="visa-table">
+            
+            <!-- Employee Column -->
+            <ng-container matColumnDef="employee">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Employee</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="employee-info">
+                  <div class="employee-name">{{ employee.employee.fullName }}</div>
+                  <div class="employee-email">{{ employee.employee.email }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Work Authorization Column -->
+            <ng-container matColumnDef="workAuthorization">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Work Authorization</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="work-auth-info">
+                  <div class="auth-title">{{ employee.workAuthorization.title }}</div>
+                  <div class="auth-dates">
+                    {{ formatDate(employee.workAuthorization.startDate) }} - {{ formatDate(employee.workAuthorization.endDate) }}
+                  </div>
+                  <div class="days-remaining" [ngClass]="getDaysRemainingColor(employee.workAuthorization.daysRemaining)">
+                    <mat-icon>schedule</mat-icon>
+                    {{ employee.workAuthorization.daysRemaining }} days remaining
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Next Step Column -->
+            <ng-container matColumnDef="nextStep">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Next Step</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="next-step">
+                  <mat-icon>arrow_forward</mat-icon>
+                  {{ employee.nextStep }}
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Action Column -->
+            <ng-container matColumnDef="action">
+              <th mat-header-cell *matHeaderCellDef>Action</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="action-buttons">
+                  <!-- Approve/Reject Document -->
+                  <button 
+                    *ngIf="employee.actionType === 'approve_reject' && employee.pendingDocument"
+                    mat-raised-button 
+                    color="primary" 
+                    (click)="openDocumentPreview(employee)">
+                    <mat-icon>visibility</mat-icon>
+                    Review Document
+                  </button>
+
+                  <!-- Send Notification -->
+                  <button 
+                    *ngIf="employee.actionType === 'send_notification'"
+                    mat-raised-button 
+                    color="accent" 
+                    (click)="sendNotification(employee)">
+                    <mat-icon>email</mat-icon>
+                    Send Notification
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="inProgressColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: inProgressColumns;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+
+          <!-- No Data Message -->
+          <div *ngIf="inProgressDataSource.data.length === 0" class="no-data">
+            <mat-icon>check_circle</mat-icon>
+            <p>All employees have completed their OPT documentation!</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- All Tab -->
+    <mat-tab label="All">
+      <div class="tab-content">
+        <div class="tab-header">
+          <h2>All OPT Employees</h2>
+          <p>View all employees with OPT visa status and their approved documents.</p>
+        </div>
+
+        <!-- Search Bar -->
+        <div class="search-container">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>Search employees</mat-label>
+            <input matInput [formControl]="searchControl" placeholder="Search by name, email, or preferred name">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="allLoading" class="loading-container">
+          <mat-spinner diameter="50"></mat-spinner>
+          <p>Loading employees...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="allError && !allLoading" class="error-container">
+          <mat-icon color="warn">error</mat-icon>
+          <p>{{ allError }}</p>
+          <button mat-button color="primary" (click)="loadAllEmployees()">
+            <mat-icon>refresh</mat-icon>
+            Retry
+          </button>
+        </div>
+
+        <!-- Data Table -->
+        <div *ngIf="!allLoading && !allError" class="table-container">
+          <table mat-table [dataSource]="allDataSource" matSort class="visa-table">
+            
+            <!-- Employee Column -->
+            <ng-container matColumnDef="employee">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Employee</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="employee-info">
+                  <div class="employee-name">{{ employee.employee.fullName }}</div>
+                  <div class="employee-email">{{ employee.employee.email }}</div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Work Authorization Column -->
+            <ng-container matColumnDef="workAuthorization">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Work Authorization</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="work-auth-info">
+                  <div class="auth-title">{{ employee.workAuthorization.title }}</div>
+                  <div class="auth-dates">
+                    {{ formatDate(employee.workAuthorization.startDate) }} - {{ formatDate(employee.workAuthorization.endDate) }}
+                  </div>
+                  <div class="days-remaining" [ngClass]="getDaysRemainingColor(employee.workAuthorization.daysRemaining)">
+                    <mat-icon>schedule</mat-icon>
+                    {{ employee.workAuthorization.daysRemaining }} days remaining
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Approved Documents Column -->
+            <ng-container matColumnDef="approvedDocuments">
+              <th mat-header-cell *matHeaderCellDef>Approved Documents</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="documents-list">
+                  <div *ngFor="let doc of employee.approvedDocuments" class="document-item">
+                    <mat-icon>description</mat-icon>
+                    <span class="document-name">{{ getDocumentTypeName(doc.documentType) }}</span>
+                    <span class="document-date">{{ formatDate(doc.uploadDate) }}</span>
+                  </div>
+                  <div *ngIf="employee.approvedDocuments.length === 0" class="no-documents">
+                    <mat-icon>info</mat-icon>
+                    <span>No approved documents</span>
+                  </div>
+                </div>
+              </td>
+            </ng-container>
+
+            <!-- Actions Column -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let employee">
+                <div class="action-buttons">
+                  <button 
+                    mat-icon-button 
+                    [matMenuTriggerFor]="documentMenu"
+                    *ngIf="employee.approvedDocuments.length > 0">
+                    <mat-icon>more_vert</mat-icon>
+                  </button>
+                  
+                  <mat-menu #documentMenu="matMenu">
+                    <div *ngFor="let doc of employee.approvedDocuments" class="document-menu-item">
+                      <button mat-menu-item (click)="previewDocument(doc, employee.employee.fullName)">
+                        <mat-icon>visibility</mat-icon>
+                        Preview {{ getDocumentTypeName(doc.documentType) }}
+                      </button>
+                      <button mat-menu-item (click)="downloadDocument(doc)">
+                        <mat-icon>download</mat-icon>
+                        Download {{ getDocumentTypeName(doc.documentType) }}
+                      </button>
+                    </div>
+                  </mat-menu>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="allColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: allColumns;"></tr>
+          </table>
+
+          <mat-paginator [pageSizeOptions]="[5, 10, 25, 50]" showFirstLastButtons></mat-paginator>
+
+          <!-- No Data Message -->
+          <div *ngIf="allDataSource.data.length === 0" class="no-data">
+            <mat-icon>search_off</mat-icon>
+            <p>No employees found matching your search criteria.</p>
+          </div>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
 </div>

@@ -19,7 +19,11 @@ const {
   getInviteHistory,
   getSpecificOnboarding,
   getAllEmployees,
-  getEmployeeById
+  getEmployeeById,
+  getInProgressOptEmployees,
+  getAllOptEmployees,
+  sendVisaNotification,
+  getDocumentPreviewUrl
 } = require('../controllers/hrController');
 const { protect } = require('../middlewares/authMiddleware');
 const adminMiddleware = require('../middlewares/adminMiddleware');
@@ -62,6 +66,9 @@ router.route('/documents/:id/approve').put(approveDocument);
 
 router.route('/documents/:id/reject').put(rejectDocument);
 
+// Document preview route
+router.route('/documents/:id/preview').get(getDocumentPreviewUrl);
+
 // Employee management routes
 router.route('/employees')
   .get(getAllEmployees);
@@ -75,5 +82,15 @@ router.route('/employees/:id')
 
 router.route('/workflow-summary')
   .get(getWorkflowSummary);
+
+// Visa status management routes
+router.route('/visa-status/in-progress')
+  .get(getInProgressOptEmployees);
+
+router.route('/visa-status/all')
+  .get(getAllOptEmployees);
+
+router.route('/visa-status/send-notification')
+  .post(sendVisaNotification);
 
 module.exports = router;
