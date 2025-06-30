@@ -1,17 +1,29 @@
 const asyncHandler = require('express-async-handler');
 const FacilityReport = require('../models/FacilityReport');
 const FacilityComment = require('../models/FacilityComment');
+const Housing = require('../models/Housing');
 
 // @desc    Create a new facility report
 // @route   POST /api/employee/facility-reports
 // @access  Private (Employee)
 const createFacilityReport = asyncHandler(async (req, res) => {
-  const { title, description, category, priority, housing } = req.body;
+  const { title, description, category, priority } = req.body;
 
   // Validate required fields
   if (!title || !description || !category) {
     res.status(400);
     throw new Error('Title, description, and category are required');
+  }
+
+  // Find the employee's assigned housing
+  let assignedHousing = null;
+  try {
+    const housing = await Housing.findOne({ employees: req.user._id });
+    if (housing) {
+      assignedHousing = housing._id;
+    }
+  } catch (error) {
+    console.warn('Could not find housing assignment for user:', req.user._id);
   }
 
   const facilityReport = await FacilityReport.create({
@@ -20,7 +32,7 @@ const createFacilityReport = asyncHandler(async (req, res) => {
     category,
     priority: priority || 'Medium',
     reportedBy: req.user._id,
-    housing: housing || null,
+    housing: assignedHousing,
   });
 
   // Populate the reportedBy field for response
@@ -42,6 +54,7 @@ const getFacilityReports = asyncHandler(async (req, res) => {
   const status = req.query.status;
   const category = req.query.category;
   const priority = req.query.priority;
+  const housing = req.query.housing;
 
   // Build filter object
   const filter = { reportedBy: req.user._id };
@@ -49,18 +62,24 @@ const getFacilityReports = asyncHandler(async (req, res) => {
   if (category) filter.category = category;
   if (priority) filter.priority = priority;
 
+  // Housing filter object
+  if (housing) {
+    delete filter.reportedBy; // Remove user filter when filtering by housing (for HR)
+    filter.housing = housing;
+  }
+
   // Calculate skip value for pagination
   const skip = (page - 1) * limit;
 
   // Get reports with pagination
   const facilityReports = await FacilityReport.find(filter)
-    .populate('reportedBy', 'username email')
+    .populate('reportedBy', 'username email firstName lastName')
     .populate('housing', 'address landlord')
     .populate({
       path: 'comments',
       populate: {
         path: 'commentedBy',
-        select: 'username email',
+        select: 'username email firstName lastName',
       },
     })
     .sort({ createdAt: -1 })
@@ -88,13 +107,13 @@ const getFacilityReports = asyncHandler(async (req, res) => {
 // @access  Private (Employee)
 const getFacilityReport = asyncHandler(async (req, res) => {
   const facilityReport = await FacilityReport.findById(req.params.id)
-    .populate('reportedBy', 'username email')
+    .populate('reportedBy', 'username email firstName lastName')
     .populate('housing', 'address landlord')
     .populate({
       path: 'comments',
       populate: {
         path: 'commentedBy',
-        select: 'username email',
+        select: 'username email firstName lastName',
       },
       options: { sort: { createdAt: 1 } },
     });
@@ -151,7 +170,10 @@ const updateFacilityReport = asyncHandler(async (req, res) => {
   await facilityReport.save();
 
   // Populate for response
-  await facilityReport.populate('reportedBy', 'username email');
+  await facilityReport.populate(
+    'reportedBy',
+    'username email firstName lastName'
+  );
 
   res.status(200).json({
     success: true,
@@ -223,7 +245,7 @@ const addComment = asyncHandler(async (req, res) => {
   await facilityReport.save();
 
   // Populate the comment for response
-  await newComment.populate('commentedBy', 'username email');
+  await newComment.populate('commentedBy', 'username email firstName lastName');
 
   res.status(201).json({
     success: true,
@@ -260,7 +282,10 @@ const updateComment = asyncHandler(async (req, res) => {
   await existingComment.save();
 
   // Populate for response
-  await existingComment.populate('commentedBy', 'username email');
+  await existingComment.populate(
+    'commentedBy',
+    'username email firstName lastName'
+  );
 
   res.status(200).json({
     success: true,

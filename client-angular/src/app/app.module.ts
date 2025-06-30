@@ -14,6 +14,16 @@ import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+import { MatPaginatorModule } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatExpansionModule } from '@angular/material/expansion';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatDividerModule } from '@angular/material/divider';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -30,6 +40,10 @@ import { EmployeeProfileDetailComponent } from './hr/employee-profile-detail/emp
 import { VisaStatusManagementComponent } from './hr/visa-status-management/visa-status-management.component';
 import { HiringManagementComponent } from './hr/hiring-management/hiring-management.component';
 import { HousingManagementComponent } from './hr/housing-management/housing-management.component';
+import { HousingSummaryComponent } from './hr/housing-management/housing-summary/housing-summary.component';
+import { HousingDetailsComponent } from './hr/housing-management/housing-details/housing-details.component';
+import { FacilityReportComponent } from './hr/housing-management/facility-report/facility-report.component';
+import { AddHouseDialogComponent } from './hr/housing-management/housing-summary/add-house-dialog/add-house-dialog.component';
 import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 @NgModule({
@@ -43,7 +57,11 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     EmployeeProfileDetailComponent,
     VisaStatusManagementComponent,
     HiringManagementComponent,
-    HousingManagementComponent
+    HousingManagementComponent,
+    HousingSummaryComponent,
+    HousingDetailsComponent,
+    FacilityReportComponent,
+    AddHouseDialogComponent,
   ],
   imports: [
     BrowserModule,
@@ -59,10 +77,20 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
     MatIconModule,
     MatListModule,
     MatCardModule,
+    MatTabsModule,
     MatFormFieldModule,
     MatInputModule,
-    MatTableModule,
+    MatSelectModule,
+    MatPaginatorModule,
+    MatProgressSpinnerModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatExpansionModule,
     MatChipsModule,
+    MatBadgeModule,
+    MatDividerModule,
+    MatProgressBarModule,
+    MatTableModule,
     MatProgressSpinnerModule,
     MatMenuModule
   ],
@@ -75,4 +103,4 @@ import { AuthInterceptor } from './interceptors/auth.interceptor';
   ],
   bootstrap: [AppComponent]
 })
-export class AppModule { }
+export class AppModule {}

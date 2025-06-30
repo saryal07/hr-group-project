@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const {
-  createRegistrationToken, 
-  getHousing, 
-  createHousing, 
-  updateHousing, 
-  getOnboardingStatus, 
+  createRegistrationToken,
+  getHousing,
+  createHousing,
+  updateHousing,
+  updateHousingById,
+  deleteHousing,
+  getOnboardingStatus,
   updateOnboardingStatus,
   getAllDocuments,
   getPendingDocuments,
@@ -22,38 +24,36 @@ const adminMiddleware = require('../middlewares/adminMiddleware');
 
 router.use(protect);
 console.log('Admin middleware:', adminMiddleware);
-router.use(adminMiddleware); // to ensure only admin has access to these
+router.use(adminMiddleware);
 
 // Sending Tokenized registration link
-router.route('/invite')
-  .post(createRegistrationToken);
+router.route('/invite').post(createRegistrationToken);
 
 // Housing routes
-router.route('/housing')
-  .get(getHousing)
-  .post(createHousing)
-  .put(updateHousing); // approach that is currently being used is to update by ID
+router.route('/housing').get(getHousing).post(createHousing).put(updateHousing);
+
+// Individual housing operations with ID in URL
+router
+  .route('/housing/:id')
+  .put(updateHousingById) // PUT /api/hr/housing/:id
+  .delete(deleteHousing); // DELETE /api/hr/housing/:id
 
 // Onboarding
-router.route('/onboarding/:employeeId')
+router
+  .route('/onboarding/:employeeId')
   .get(getOnboardingStatus)
   .put(updateOnboardingStatus);
 
 // Document management routes
-router.route('/documents')
-  .get(getAllDocuments);
+router.route('/documents').get(getAllDocuments);
 
-router.route('/documents/pending')
-  .get(getPendingDocuments);
+router.route('/documents/pending').get(getPendingDocuments);
 
-router.route('/documents/employee/:employeeId')
-  .get(getEmployeeDocuments);
+router.route('/documents/employee/:employeeId').get(getEmployeeDocuments);
 
-router.route('/documents/:id/approve')
-  .put(approveDocument);
+router.route('/documents/:id/approve').put(approveDocument);
 
-router.route('/documents/:id/reject')
-  .put(rejectDocument);
+router.route('/documents/:id/reject').put(rejectDocument);
 
 // Employee management routes
 router.route('/employees')

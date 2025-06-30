@@ -21,7 +21,9 @@ const createRegistrationToken = asyncHandler(async (req, res) => {
   }
 
   // Generate token using JWT
-  const token = jwt.sign({ email }, process.env.JWT_SECRET, { expiresIn: '3h' });
+  const token = jwt.sign({ email }, process.env.JWT_SECRET, {
+    expiresIn: '3h',
+  });
 
   // Save token in DB (so it can be validated later)
   await TokenModel.create({
@@ -36,7 +38,10 @@ const createRegistrationToken = asyncHandler(async (req, res) => {
 
 // GET housing
 const getHousing = asyncHandler(async (req, res) => {
-  const houses = await Housing.find().populate('employees', 'firstName lastName email');
+  const houses = await Housing.find().populate(
+    'employees',
+    'firstName lastName email cellPhone workPhone car preferredName middleName'
+  );
   res.json(houses);
 });
 
@@ -57,6 +62,69 @@ const updateHousing = asyncHandler(async (req, res) => {
   res.json(updated);
 });
 
+// PUT housing by ID (RESTful approach)
+const updateHousingById = asyncHandler(async (req, res) => {
+  const houseId = req.params.id;
+  const updates = req.body;
+
+  if (!houseId) {
+    res.status(400);
+    throw new Error('House ID is required');
+  }
+
+  const updated = await Housing.findByIdAndUpdate(houseId, updates, {
+    new: true,
+    runValidators: true,
+  }).populate(
+    'employees',
+    'firstName lastName email cellPhone workPhone car preferredName middleName'
+  );
+
+  if (!updated) {
+    res.status(404);
+    throw new Error('Housing not found');
+  }
+
+  console.log(`House updated: ${houseId}`);
+  res.status(200).json(updated);
+});
+
+// DELETE housing
+const deleteHousing = asyncHandler(async (req, res) => {
+  const houseId = req.params.id;
+
+  if (!houseId) {
+    res.status(400);
+    throw new Error('House ID is required');
+  }
+
+  // Check if house exists
+  const house = await Housing.findById(houseId).populate('employees');
+
+  if (!house) {
+    res.status(404);
+    throw new Error('House not found');
+  }
+
+  // Check if house has any employees assigned
+  if (house.employees && house.employees.length > 0) {
+    res.status(400);
+    throw new Error(
+      'Cannot delete house with assigned employees. Please reassign employees first.'
+    );
+  }
+
+  // Delete the house
+  await Housing.findByIdAndDelete(houseId);
+
+  console.log(`House deleted: ${houseId}`);
+
+  res.status(200).json({
+    success: true,
+    message: 'House deleted successfully',
+  });
+});
+
 // GET onboarding status
 const getOnboardingStatus = asyncHandler(async (req, res) => {
   const employee = await Employee.findById(req.params.employeeId);
@@ -67,14 +135,22 @@ const getOnboardingStatus = asyncHandler(async (req, res) => {
 // PUT onboarding status (HR approves or rejects applications, or resets status to allow resubmission)
 const updateOnboardingStatus = asyncHandler(async (req, res) => {
   const { status, hrFeedback } = req.body;
-  const employee = await Employee.findByIdAndUpdate(req.params.employeeId, {
-    onboardingStatus: status,
-    hrFeedback: hrFeedback,
-  }, { new: true });
+  const employee = await Employee.findByIdAndUpdate(
+    req.params.employeeId,
+    {
+      onboardingStatus: status,
+      hrFeedback: hrFeedback,
+    },
+    { new: true }
+  );
 
   if (!employee) throw new Error('Employee not found');
 
-  res.json({ message: 'Onboarding status updated', onboardingStatus: employee.onboardingStatus, hrFeedback: employee.hrFeedback });
+  res.json({
+    message: 'Onboarding status updated',
+    onboardingStatus: employee.onboardingStatus,
+    hrFeedback: employee.hrFeedback,
+  });
 });
 
 // GET /hr/documents - Get all documents for HR review
@@ -87,7 +163,7 @@ const getAllDocuments = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: documents.length,
-    data: documents
+    data: documents,
   });
 });
 
@@ -100,7 +176,7 @@ const getPendingDocuments = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: documents.length,
-    data: documents
+    data: documents,
   });
 });
 
@@ -119,7 +195,7 @@ const getEmployeeDocuments = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: documents.length,
-    data: documents
+    data: documents,
   });
 });
 
@@ -147,7 +223,7 @@ const approveDocument = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: document,
-    message: 'Document approved successfully'
+    message: 'Document approved successfully',
   });
 });
 
@@ -182,20 +258,20 @@ const rejectDocument = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     data: document,
-    message: 'Document rejected successfully'
+    message: 'Document rejected successfully',
   });
 });
 
 // GET /hr/employees/opt - Get all employees with OPT visa status
 const getOptEmployees = asyncHandler(async (req, res) => {
   const employees = await Employee.find({
-    'visa.title': 'OPT'
+    'visa.title': 'OPT',
   }).select('firstName lastName email visa onboardingStatus');
 
   res.status(200).json({
     success: true,
     count: employees.length,
-    data: employees
+    data: employees,
   });
 });
 
@@ -203,34 +279,39 @@ const getOptEmployees = asyncHandler(async (req, res) => {
 const getWorkflowSummary = asyncHandler(async (req, res) => {
   // Get all OPT employees
   const optEmployees = await Employee.find({
-    'visa.title': 'OPT'
+    'visa.title': 'OPT',
   }).select('firstName lastName email');
 
   const summary = await Promise.all(
     optEmployees.map(async (employee) => {
-      const documents = await Document.find({ employee: employee._id })
-        .sort({ stepOrder: 1 });
+      const documents = await Document.find({ employee: employee._id }).sort({
+        stepOrder: 1,
+      });
 
       const workflowSteps = [
         { stepOrder: 1, documentType: 'opt_receipt', stepName: 'OPT Receipt' },
         { stepOrder: 2, documentType: 'opt_ead', stepName: 'OPT EAD' },
         { stepOrder: 3, documentType: 'i_983', stepName: 'I-983' },
-        { stepOrder: 4, documentType: 'i_20', stepName: 'I-20' }
+        { stepOrder: 4, documentType: 'i_20', stepName: 'I-20' },
       ];
 
-      const steps = workflowSteps.map(step => {
-        const document = documents.find(doc => doc.stepOrder === step.stepOrder);
+      const steps = workflowSteps.map((step) => {
+        const document = documents.find(
+          (doc) => doc.stepOrder === step.stepOrder
+        );
         return {
           stepOrder: step.stepOrder,
           stepName: step.stepName,
           status: document ? document.status : 'not_uploaded',
           uploaded: !!document,
           uploadedAt: document ? document.uploadDate : null,
-          reviewedAt: document ? document.reviewedAt : null
+          reviewedAt: document ? document.reviewedAt : null,
         };
       });
 
-      const completedSteps = steps.filter(step => step.status === 'approved').length;
+      const completedSteps = steps.filter(
+        (step) => step.status === 'approved'
+      ).length;
       const totalSteps = steps.length;
       const progress = (completedSteps / totalSteps) * 100;
 
@@ -239,12 +320,12 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
           id: employee._id,
           firstName: employee.firstName,
           lastName: employee.lastName,
-          email: employee.email
+          email: employee.email,
         },
         steps,
         progress: Math.round(progress),
         completedSteps,
-        totalSteps
+        totalSteps,
       };
     })
   );
@@ -252,7 +333,7 @@ const getWorkflowSummary = asyncHandler(async (req, res) => {
   res.status(200).json({
     success: true,
     count: summary.length,
-    data: summary
+    data: summary,
   });
 });
 
@@ -376,6 +457,8 @@ module.exports = {
   getHousing,
   createHousing,
   updateHousing,
+  updateHousingById,
+  deleteHousing,
   getOnboardingStatus,
   updateOnboardingStatus,
   getAllDocuments,

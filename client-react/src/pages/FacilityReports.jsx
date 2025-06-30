@@ -5,8 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
-  Chip,
   Box,
   FormControl,
   InputLabel,
@@ -15,6 +13,7 @@ import {
   Alert,
   CircularProgress,
   Pagination,
+  Chip,
 } from '@mui/material';
 import {
   Add as AddIcon,
@@ -52,7 +51,7 @@ const FacilityReports = () => {
           limit: '6',
           ...(filters.status && { status: filters.status }),
           ...(filters.category && { category: filters.category }),
-          ...(filters.priority && { priority: filters.priority }), // Added priority to query
+          ...(filters.priority && { priority: filters.priority }),
         });
 
         const response = await fetch(
@@ -90,7 +89,16 @@ const FacilityReports = () => {
   };
 
   const getStatusColor = (status) => {
-    return 'default';
+    switch (status) {
+      case 'Open':
+        return 'error';
+      case 'In Progress':
+        return 'warning';
+      case 'Resolved':
+        return 'success';
+      default:
+        return 'default';
+    }
   };
 
   const getPriorityColor = (priority) => {
@@ -104,6 +112,12 @@ const FacilityReports = () => {
       default:
         return 'default';
     }
+  };
+
+  // long titles
+  const truncateTitle = (title, maxLength = 50) => {
+    if (title.length <= maxLength) return title;
+    return title.substring(0, maxLength) + '...';
   };
 
   return (
@@ -178,7 +192,6 @@ const FacilityReports = () => {
                 <MenuItem value="Other">Other</MenuItem>
               </Select>
             </FormControl>
-            {/* Priority Filter */}
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Priority</InputLabel>
               <Select
@@ -205,7 +218,7 @@ const FacilityReports = () => {
         </Alert>
       )}
 
-      {/* Reports Grid */}
+      {/* Reports List - consistent width for design*/}
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
           <CircularProgress />
@@ -222,96 +235,118 @@ const FacilityReports = () => {
           </CardContent>
         </Card>
       ) : (
-        <Grid container spacing={3}>
+        // Vertical layout
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
           {reports.map((report) => (
-            <Grid item xs={12} md={6} key={report._id}>
-              <Card
-                sx={{
-                  height: '100%',
-                  cursor: 'pointer',
-                  border: '1px solid #e0e0e0',
-                  '&:hover': {
-                    borderColor: 'primary.main',
-                  },
-                }}
-                onClick={() => navigate(`/facility-reports/${report._id}`)}
-              >
-                <CardContent>
-                  <Box
+            <Card
+              key={report._id}
+              sx={{
+                width: '100%', // Full width to match the filter bar
+                cursor: 'pointer',
+                border: '1px solid #e0e0e0',
+                '&:hover': {
+                  borderColor: 'primary.main',
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                },
+                transition: 'all 0.2s ease-in-out',
+              }}
+              onClick={() => navigate(`/facility-reports/${report._id}`)}
+            >
+              <CardContent sx={{ py: 2 }}>
+                {/* Header with truncated title and status */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    mb: 1,
+                  }}
+                >
+                  <Typography
+                    variant="h6"
                     sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      mb: 2,
+                      fontWeight: 'bold',
+                      flex: 1,
+                      mr: 2,
+                      // Handle long titles
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
                     }}
+                    title={report.title} // Show full title on hover
                   >
-                    <Typography
-                      variant="h6"
-                      sx={{ fontWeight: 'bold', flex: 1 }}
-                    >
-                      {report.title}
-                    </Typography>
+                    {truncateTitle(report.title, 60)}
+                  </Typography>
+                  <Chip
+                    label={report.status}
+                    color={getStatusColor(report.status)}
+                    size="small"
+                  />
+                </Box>
+
+                {/* Description with consistent truncation */}
+                <Typography
+                  variant="body2"
+                  color="textSecondary"
+                  sx={{
+                    mb: 2,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2, // Show max 2 lines
+                    WebkitBoxOrient: 'vertical',
+                  }}
+                  title={report.description} // Show full description on hover
+                >
+                  {report.description}
+                </Typography>
+
+                {/* Bottom row with metadata */}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: 1,
+                  }}
+                >
+                  {/* Left side: Category and Priority */}
+                  <Box sx={{ display: 'flex', gap: 1 }}>
                     <Chip
-                      label={report.status}
-                      color={getStatusColor(report.status)}
+                      label={report.category}
+                      variant="outlined"
                       size="small"
-                      sx={{ ml: 1 }}
+                      sx={{ fontSize: '0.75rem' }}
+                    />
+                    <Chip
+                      label={report.priority}
+                      color={getPriorityColor(report.priority)}
+                      variant="outlined"
+                      size="small"
+                      sx={{ fontSize: '0.75rem' }}
                     />
                   </Box>
 
-                  <Typography
-                    variant="body2"
-                    color="textSecondary"
-                    sx={{ mb: 2 }}
-                  >
-                    {report.description.length > 150
-                      ? `${report.description.substring(0, 150)}...`
-                      : report.description}
-                  </Typography>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      flexWrap: 'wrap',
-                      gap: 1,
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                      <Chip
-                        label={report.category}
-                        variant="outlined"
-                        size="small"
-                      />
-                      <Chip
-                        label={report.priority}
-                        color={getPriorityColor(report.priority)}
-                        variant="outlined"
-                        size="small"
-                      />
-                    </Box>
-
-                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  {/* Right side: Comments and Date */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}
+                    >
                       <CommentIcon fontSize="small" color="action" />
                       <Typography variant="caption" color="textSecondary">
                         {report.comments.length}
                       </Typography>
                     </Box>
+                    <Typography variant="caption" color="textSecondary">
+                      {new Date(report.createdAt).toLocaleDateString()}
+                    </Typography>
                   </Box>
-
-                  <Typography
-                    variant="caption"
-                    color="textSecondary"
-                    sx={{ display: 'block', mt: 2 }}
-                  >
-                    Created: {new Date(report.createdAt).toLocaleDateString()}
-                  </Typography>
-                </CardContent>
-              </Card>
-            </Grid>
+                </Box>
+              </CardContent>
+            </Card>
           ))}
-        </Grid>
+        </Box>
       )}
 
       {/* Pagination */}
@@ -326,7 +361,7 @@ const FacilityReports = () => {
         </Box>
       )}
 
-      {/* Create Report Dialog - using shared component */}
+      {/* Create Report Dialog */}
       <CreateReportDialog
         open={createDialogOpen}
         onClose={() => setCreateDialogOpen(false)}
