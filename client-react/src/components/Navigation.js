@@ -48,21 +48,21 @@ const Navigation = () => {
     handleClose();
   };
 
-  // Use ACTUAL routes that exist in App.jsx
+  // routes in App.jsx
   const navItems = [
     {
       title: 'Personal Information',
-      path: '/personal-information', // ✅ Exists in App.jsx
+      path: '/personal-information',
       icon: <Person sx={{ mr: 1 }} />,
     },
     {
       title: 'Visa Status Management',
-      path: '/visa-status', // ✅ Updated to correct route
+      path: '/visa-status',
       icon: <Assignment sx={{ mr: 1 }} />,
     },
     {
       title: 'Housing',
-      path: '/housing', // ✅ Exists in App.jsx
+      path: '/housing',
       icon: <Home sx={{ mr: 1 }} />,
     },
   ];
