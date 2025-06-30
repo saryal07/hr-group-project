@@ -43,15 +43,14 @@
     </div>
 
     <!-- Reject Form -->
-    <div *ngIf="showRejectForm" class="reject-form">
+    <div *ngIf="showRejectForm" class="reject-form" [formGroup]="rejectForm">
       <mat-form-field appearance="outline" class="full-width">
         <mat-label>Rejection Feedback</mat-label>
         <textarea 
           matInput 
           formControlName="feedback"
           placeholder="Please provide detailed feedback for the rejection..."
-          rows="4">
-        </textarea>
+          rows="4"></textarea>
         <mat-error *ngIf="rejectForm.get('feedback')?.hasError('required')">
           Feedback is required
         </mat-error>
