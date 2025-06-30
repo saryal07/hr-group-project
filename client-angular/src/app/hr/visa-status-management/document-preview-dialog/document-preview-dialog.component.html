@@ -1,0 +1,119 @@
+<div class="document-preview-dialog">
+  <div class="dialog-header">
+    <h2 mat-dialog-title>
+      <mat-icon>description</mat-icon>
+      Document Preview - {{ getStepName(data.currentStep) }}
+    </h2>
+    <button mat-icon-button (click)="close()">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <mat-dialog-content class="dialog-content">
+    <div class="employee-info">
+      <p><strong>Employee:</strong> {{ data.employeeName }}</p>
+      <p><strong>Document:</strong> {{ data.originalName }}</p>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading document preview...</p>
+    </div>
+
+    <!-- Error State -->
+    <div *ngIf="error && !loading" class="error-container">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error }}</p>
+      <button mat-button color="primary" (click)="loadDocumentPreview()">
+        <mat-icon>refresh</mat-icon>
+        Retry
+      </button>
+    </div>
+
+    <!-- Document Preview -->
+    <div *ngIf="!loading && !error" class="preview-container">
+      <iframe 
+        [src]="previewUrl | safe" 
+        width="100%" 
+        height="500px"
+        frameborder="0"
+        class="document-iframe">
+      </iframe>
+    </div>
+
+    <!-- Reject Form -->
+    <div *ngIf="showRejectForm" class="reject-form">
+      <mat-form-field appearance="outline" class="full-width">
+        <mat-label>Rejection Feedback</mat-label>
+        <textarea 
+          matInput 
+          formControlName="feedback"
+          placeholder="Please provide detailed feedback for the rejection..."
+          rows="4">
+        </textarea>
+        <mat-error *ngIf="rejectForm.get('feedback')?.hasError('required')">
+          Feedback is required
+        </mat-error>
+        <mat-error *ngIf="rejectForm.get('feedback')?.hasError('minlength')">
+          Feedback must be at least 10 characters
+        </mat-error>
+      </mat-form-field>
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end" class="dialog-actions">
+    <!-- Show reject form button -->
+    <button 
+      *ngIf="!showRejectForm && !processing" 
+      mat-button 
+      color="warn" 
+      (click)="showRejectFormHandler()">
+      <mat-icon>close</mat-icon>
+      Reject
+    </button>
+
+    <!-- Cancel reject button -->
+    <button 
+      *ngIf="showRejectForm && !processing" 
+      mat-button 
+      (click)="cancelReject()">
+      Cancel
+    </button>
+
+    <!-- Reject with feedback button -->
+    <button 
+      *ngIf="showRejectForm && !processing" 
+      mat-raised-button 
+      color="warn" 
+      [disabled]="rejectForm.invalid"
+      (click)="rejectDocument()">
+      <mat-icon>close</mat-icon>
+      Reject Document
+    </button>
+
+    <!-- Approve button -->
+    <button 
+      *ngIf="!showRejectForm && !processing" 
+      mat-raised-button 
+      color="primary" 
+      (click)="approveDocument()">
+      <mat-icon>check</mat-icon>
+      Approve
+    </button>
+
+    <!-- Processing state -->
+    <div *ngIf="processing" class="processing-state">
+      <mat-spinner diameter="20"></mat-spinner>
+      <span>Processing...</span>
+    </div>
+
+    <!-- Close button -->
+    <button 
+      *ngIf="!processing" 
+      mat-button 
+      (click)="close()">
+      Close
+    </button>
+  </mat-dialog-actions>
+</div> 

@@ -1,0 +1,123 @@
+.document-preview-dialog {
+  min-width: 800px;
+  max-width: 1000px;
+  max-height: 90vh;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px 0;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dialog-content {
+  padding: 16px 24px;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.employee-info {
+  background-color: #f5f5f5;
+  padding: 12px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+}
+
+.employee-info p {
+  margin: 4px 0;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 16px;
+  color: #666;
+}
+
+.error-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.error-container mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+.error-container p {
+  margin: 16px 0;
+  color: #d32f2f;
+}
+
+.preview-container {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.document-iframe {
+  border: none;
+  background-color: white;
+}
+
+.reject-form {
+  margin-top: 16px;
+  padding: 16px;
+  background-color: #fff3e0;
+  border-radius: 4px;
+  border-left: 4px solid #ff9800;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.dialog-actions {
+  padding: 16px 24px;
+  gap: 8px;
+}
+
+.processing-state {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .document-preview-dialog {
+    min-width: 90vw;
+    max-width: 90vw;
+  }
+  
+  .dialog-content {
+    padding: 12px 16px;
+  }
+  
+  .dialog-actions {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+} 
