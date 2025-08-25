@@ -21,8 +21,8 @@ This portal allows employees to register, upload documents, track onboarding pro
 
 ## Tech Stack
 ### Frontend:
-- React (Employee) + Redux + Material UI
-- Angular (HR) + NgRx + Angular Material
+- React (Employee) + Material UI
+- Angular (HR) + Angular Material
 
 ### Backend:
 - Node.js + Express (MVC Architecture)
@@ -65,6 +65,27 @@ This portal allows employees to register, upload documents, track onboarding pro
 - JWT_SECRET=your_secret
 - AWS_ACCESS_KEY=...
 - AWS_SECRET_KEY=...
+
+## Team Roles
+### Sajan Aryal (Team Lead)
+- Led project setup, Jira planning, and GitHub workflows; coordinated daily standups and task assignments
+- Designed backend architecture and employee authentication with JWT; built core HR workflows (invite links, application review with feedback)
+- Developed React onboarding form and Angular views for hiring management with approval/rejection logic
+
+### Yuqin Zhang (Scott)
+- Built employee personal information UI with editable sections, modal confirmations, and form state handling
+- Developed housing view and HR dashboard tabs with route navigation, logout functionality, and employee search/filter
+- Implemented HR employee directory with profile linking and tab-based layout in Angular
+
+### Guanhong Jiang (Kevin)
+- Designed Document schema and integrated AWS S3 for secure uploads and previews
+- Built visa document workflow (OPT Receipt → I-20) with sequential uploads and feedback handling
+- Developed HR tools to monitor visa progress and send automated email reminders for next steps
+
+### Sung Je Moon (Jay)
+- Built global navigation bar with route highlighting and role-based conditional rendering
+- Implemented facility issue reporting with threaded comment threads and personal report list view
+- Developed HR housing management panel to view properties, assign residents, and manage facility reports
 
 ## Lessons Learned
 - Efficient team coordination via daily standups and story-pointing in Jira
