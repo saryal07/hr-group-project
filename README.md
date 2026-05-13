@@ -41,7 +41,7 @@ This portal allows employees to register, upload documents, track onboarding pro
 
 ## How to run locally
 ### 1. Clone the repository
-- git clone https://github.com/yourusername/hr-onboarding-portal.git
+- git clone https://github.com/saryal07/hr-group-project.git
 - cd hr-onboarding-portal
 
 ### 2. Set up backend:
